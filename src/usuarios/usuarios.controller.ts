@@ -18,6 +18,7 @@ export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
   @Post()
+  @Public()
   @AllowRoles([Rol.Admin])
   @ApiOperation({summary:'Crea un usuario (Admin).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})

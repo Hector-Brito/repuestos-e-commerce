@@ -10,6 +10,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { JwtGuard } from './guards/jwt.guard';
+import { LocalStrategy } from './strategy/local.strategy';
+import { JwtStrategy } from './strategy/jwt.strategy';
 
 
 @Module({
@@ -44,8 +47,10 @@ import { MailerModule } from '@nestjs-modules/mailer';
     UniqueInDatabaseConstraint,
     {
       provide:APP_GUARD,
-      useClass:AuthGuard
-    }
+      useClass:JwtGuard
+    },
+    LocalStrategy,
+    JwtStrategy
   ],
 })
 export class AuthModule {}

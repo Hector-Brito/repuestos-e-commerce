@@ -16,10 +16,10 @@ export class RolesGuard implements CanActivate{
         if (isPublic){
             return true
         }
-        const req:Request & {user:{sub:number,username:string,role:string}} = context.switchToHttp().getRequest()
+        const req:Request & {user:{sub:number,username:string,rol:string}} = context.switchToHttp().getRequest()
         const roles = this.reflector.get(AllowRoles,context.getHandler())
         
-        const hasAccess = await this.matchRoles(req.user.role,roles)
+        const hasAccess = await this.matchRoles(req.user.rol,roles)
         if (hasAccess){
             return true
         }
