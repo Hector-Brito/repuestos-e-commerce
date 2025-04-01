@@ -3,11 +3,12 @@ import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
 import { Public } from './decorators/isPublic.decorator';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { AllowRoles } from './decorators/roles.decorator';
-import { RolesGuard } from './guards/roles.guard';
-import { PATH_METADATA } from '@nestjs/common/constants';
 import { Request } from 'express';
 import { ResetPasswordDto } from './dto/forgetPassword.dto';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { Rol } from 'src/usuarios/enum/rol.enum';
+import { PerfilEntity } from 'src/usuarios/entities/perfil.entity';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 
 
 @ApiBearerAuth()
@@ -15,18 +16,28 @@ import { ResetPasswordDto } from './dto/forgetPassword.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+
+  @Post('refresh')
+  @Public()
+  @UseGuards(JwtRefreshGuard)
+  @ApiOperation({summary:'Refrescar token.'})
+  async refreshToken(@Req() req:Request & {user:{sub:number,username:string,rol:Rol,profileId:number,refreshToken:string}}){
+    return await this.authService.refreshToken(req.user.sub,req.user.refreshToken)
+  }
   
   @Post('login')
   @Public()
+  @UseGuards(LocalAuthGuard)
   @ApiOperation({summary:'Iniciar sesion.'})
   signIn(
-    @Body() signInDto:SignInDto
+    @Req() req:Request & {user:{sub:number,username:string,rol:Rol,profileId:number,refreshToken:string}},
   ){
-    return this.authService.signIn(signInDto)
+    return this.authService.signIn(req.user)
   }
 
   @Post('forgot-password')
   @Public()
+  @ApiOperation({summary:'Recuperar contraseña.'})
   async forgotPassword(
     @Req() request:Request,
     @Body() {email}:{email:string}
@@ -39,12 +50,21 @@ export class AuthController {
 
   @Patch('reset-password/')
   @Public()
+  @ApiOperation({summary:'Resetear contraseña.'})
   async resetPassword(
     @Body() resetPasswordDto:ResetPasswordDto
   ){
     return await this.authService.resetPassword(resetPasswordDto)
   }
 
+
+  @Post('logout')
+  @ApiOperation({summary:'Salir de la sesion.'})
+  async logout(
+    @Req() req:Request & {user:{sub:number,username:string,rol:Rol,profileId:number,refreshToken:string}}
+  ){
+    return await this.authService.logout(req.user.sub)
+  }
 
   @Get()
   @ApiOperation({summary:'Ver perfil.'})

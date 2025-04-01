@@ -28,6 +28,9 @@ export class UsuarioEntity {
      @OneToOne(() => PerfilEntity,(perfil) => perfil.usuario,{nullable:true,cascade:true,onDelete:'CASCADE'})
      perfil:PerfilEntity
 
+     @Column({type:'text',nullable:true,unique:true})
+     refreshToken:string|null
+
      @BeforeInsert()
      async hashPassword(){
           this.password = await hash(this.password)

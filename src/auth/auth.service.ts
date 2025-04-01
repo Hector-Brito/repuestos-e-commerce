@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { SignInDto } from './dto/signIn.dto';
 import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
@@ -8,6 +8,10 @@ import { jwtConstants } from './constants';
 import { ResetPasswordDto } from './dto/forgetPassword.dto';
 import { EntityNotFoundError } from 'typeorm';
 import { UsuarioEntity } from 'src/usuarios/entities/usuario.entity';
+import { Rol } from 'src/usuarios/enum/rol.enum';
+import { PerfilEntity } from 'src/usuarios/entities/perfil.entity';
+import { Request } from 'express';
+import { Tokens } from './types/tokens.type';
 
 
 
@@ -20,18 +24,65 @@ export class AuthService {
         private readonly mailerService:MailerService,
     ){}
 
-
-    async signIn(signInDto:SignInDto){    
-        const usuario = await  this.usuariosService.findOneByUsername(signInDto.username)
-        const equal = await verify(usuario.password,signInDto.password)
-        if (equal){
-            const payload = {sub:usuario.id,username:usuario.username,role:usuario.rol}
-            if (usuario.perfil) payload['profileId'] = usuario.perfil.id
-            
-            const access_token = await this.jwtService.signAsync(payload)
-            return 'Bearer ' + access_token
+    async getTokens(usuario:{sub:number,username:string,rol:Rol,profileId?:number}):Promise<Tokens>{
+        const payload = {
+            sub:usuario.sub,
+            username:usuario.username,
+            rol:usuario.rol
         }
-        throw new UnauthorizedException('La contraseña no coincide')
+        if (usuario.profileId) payload['profileId'] = usuario.profileId
+
+        const accessToken:string = await this.jwtService.signAsync(payload,{expiresIn:"15m",secret:jwtConstants.secret})
+        const refreshToken:string = await this.jwtService.signAsync(payload,{expiresIn:'7d',secret:jwtConstants.refreshSecret})
+
+        return {
+            accessToken,
+            refreshToken
+        }
+    }
+
+    async updateRefreshTokenHash(usuarioId:number,refreshToken:string){
+        const refreshTokenHashed:string = await hash(refreshToken)
+        const usuario:UsuarioEntity = await this.usuariosService.findOne(usuarioId)
+        usuario.refreshToken = refreshTokenHashed
+        await this.usuariosService.save(usuario)
+    }
+
+    async refreshToken(usuarioId:number,refreshToken:string){
+        const usuario:UsuarioEntity = await this.usuariosService.findOne(usuarioId)
+        console.log(usuario)
+        if (!usuario.refreshToken) throw new ForbiddenException('Acceso denegado, el usuario no esta autenticado.')
+        const refreshTokenMatch:boolean = await verify(usuario.refreshToken,refreshToken)
+        if (!refreshTokenMatch) throw new ForbiddenException('El token del usuario es invalido.')
+        
+        const payload = {
+            sub:usuario.id,
+            username:usuario.username,
+            rol:usuario.rol,
+            profileId:usuario.perfil?.id ?? undefined
+        }
+        const tokens:Tokens = await this.getTokens(payload)
+        await this.updateRefreshTokenHash(payload.sub,tokens.refreshToken)
+        return tokens
+    }
+
+    async signIn(usuario:{sub:number,username:string,rol:Rol,profileId:number,refreshToken:string}):Promise<Tokens>{    
+        const payload = {sub:usuario.sub,username:usuario.username,rol:usuario.rol,profileId:usuario.profileId ?? undefined}
+            
+        const tokens = await this.getTokens(payload)
+        await this.updateRefreshTokenHash(payload.sub,tokens.refreshToken)
+        return tokens
+        
+    }
+    
+    async signUp(){
+        return ''
+    }
+
+    async logout(usuarioId:number,){
+        const usuario:UsuarioEntity = await this.usuariosService.findOne(usuarioId)
+        usuario.refreshToken = null
+        await this.usuariosService.save(usuario)
     }
 
 
@@ -81,12 +132,11 @@ export class AuthService {
             return user;
         }
         catch (e){
-            throw new BadRequestException('Usuario no encontrado.')
+            if (e instanceof EntityNotFoundError) throw new NotFoundException('Usuario no existe.')
+            if (e instanceof BadRequestException) throw new UnauthorizedException('La contraseña no coincide.')
+            throw new InternalServerErrorException()
         }
         
     }
     
-    async signUp(){
-        return ''
-    }
 }

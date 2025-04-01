@@ -85,6 +85,7 @@ export class UsuariosService {
         password:true,
         rol:true,
         email:true,
+        refreshToken:true,
         perfil:{
           id:true
         },

@@ -4,9 +4,10 @@ import { Strategy } from "passport-jwt";
 import {ExtractJwt} from 'passport-jwt'
 import { jwtConstants } from "../constants";
 import { UsuariosService } from "src/usuarios/usuarios.service";
+import { Request } from "express";
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy,'jwt'){
+export class JwtRefreshStrategy extends PassportStrategy(Strategy,'jwt-refresh'){
     constructor(
         private usuarioService:UsuariosService
     ){
@@ -14,19 +15,23 @@ export class JwtStrategy extends PassportStrategy(Strategy,'jwt'){
             {
                 jwtFromRequest:ExtractJwt.fromAuthHeaderAsBearerToken(),
                 ignoreExpiration:false,
-                secretOrKey:jwtConstants.secret
+                passReqToCallback:true,
+                secretOrKey:jwtConstants.refreshSecret
             }
         )
     }
 
-    async validate(payload: any):Promise<any> {
+    async validate(req:Request,payload: any):Promise<any> {
         try{
+            const refreshToken:string|undefined = req.get('authorization')?.replace('Bearer','').trim()
+            
             const authUser = await this.usuarioService.findOne(payload.sub)
             return {
                 sub:authUser.id,
                 username:authUser.username,
                 rol:authUser.rol,
-                profileId:authUser.perfil?.id ?? undefined
+                profileId:authUser.perfil?.id ?? undefined,
+                refreshToken,
             }
         }
         catch (e){

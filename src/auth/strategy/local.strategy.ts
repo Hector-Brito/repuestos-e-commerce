@@ -8,13 +8,16 @@ export class LocalStrategy extends PassportStrategy(Strategy){
     constructor(
         private authService:AuthService
     ){
-        super({
-
-        })
+        super()
     }
 
     async validate(username:string, password:string): Promise<any> {
         const user = await this.authService.validateUser(username, password)
-        return user
+        return {
+            sub:user.id,
+            username:user.username,
+            rol:user.rol,
+            profileId:user.perfil?.id ?? undefined
+        }
     }
 }
