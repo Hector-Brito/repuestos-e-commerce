@@ -23,6 +23,7 @@ export class UsuariosService {
     const usuario = this.UsuarioRepository.create(
       {
         ...createUsuarioDto,
+        rol:createUsuarioDto.rol ?? Rol.User,
         perfil:createPerfilDto ? createPerfilDto : undefined
       }
     )

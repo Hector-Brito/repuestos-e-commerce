@@ -5,7 +5,7 @@ import { EntityNotFoundError, QueryFailedError } from "typeorm";
 const dbErrorCodes = {
     '23505':'ERROR DE VALOR UNICO, EVITA QUE DATOS UNICOS SE REPITAN'
 }
-
+//editar
 @Catch(QueryFailedError,EntityNotFoundError)
 export class DbExceptionFilter implements ExceptionFilter  {
   

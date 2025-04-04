@@ -1,6 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
-import { SignInDto } from './dto/signIn.dto';
 import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import { hash, verify } from 'argon2';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -9,9 +8,8 @@ import { ResetPasswordDto } from './dto/forgetPassword.dto';
 import { EntityNotFoundError } from 'typeorm';
 import { UsuarioEntity } from 'src/usuarios/entities/usuario.entity';
 import { Rol } from 'src/usuarios/enum/rol.enum';
-import { PerfilEntity } from 'src/usuarios/entities/perfil.entity';
-import { Request } from 'express';
 import { Tokens } from './types/tokens.type';
+import { SignUpDto } from './dto/signUp.dto';
 
 
 
@@ -50,7 +48,6 @@ export class AuthService {
 
     async refreshToken(usuarioId:number,refreshToken:string){
         const usuario:UsuarioEntity = await this.usuariosService.findOne(usuarioId)
-        console.log(usuario)
         if (!usuario.refreshToken) throw new ForbiddenException('Acceso denegado, el usuario no esta autenticado.')
         const refreshTokenMatch:boolean = await verify(usuario.refreshToken,refreshToken)
         if (!refreshTokenMatch) throw new ForbiddenException('El token del usuario es invalido.')
@@ -75,8 +72,17 @@ export class AuthService {
         
     }
     
-    async signUp(){
-        return ''
+    async signUp(signUpDto:SignUpDto){
+        const newUser = await this.usuariosService.create({...signUpDto})
+        const payload = {
+            sub:newUser.id,
+            username:newUser.username,
+            rol:newUser.rol,
+            profileId:newUser.perfil?.id ?? undefined
+        }
+        const tokens:Tokens = await this.getTokens(payload)
+        await this.updateRefreshTokenHash(payload.sub,tokens.refreshToken)
+        return tokens
     }
 
     async logout(usuarioId:number,){
@@ -87,8 +93,8 @@ export class AuthService {
 
 
     async forgotPassword(email:string,url:string){
-        //const user = await this.usuariosService.findOneByEmail(email)
-        const payload = {email:'hectorsibritoa@gmail.com'}
+        const user = await this.usuariosService.findOneByEmail(email)
+        const payload = {email:user.email}
         const token = await this.jwtService.signAsync(payload,{secret:jwtConstants.secret,expiresIn:'3m'})
         url+=`/?token=${token}`
         const response = await this.mailerService.sendMail(
@@ -106,7 +112,6 @@ export class AuthService {
         try{
             const tokenIsValid:{email:string} = await this.jwtService.verifyAsync(resetPasswordDto.token)
             const user = await this.usuariosService.findOneByEmail(tokenIsValid.email)
-            //hacer el cambio de contraseña
             user.password = await hash(resetPasswordDto.newPassword)
             return await this.usuariosService.save(user)
         }

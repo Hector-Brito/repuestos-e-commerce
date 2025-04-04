@@ -1,6 +1,5 @@
 import { Body, Controller, Post, Get, Req, UseGuards, Query, Param, Patch,} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignInDto } from './dto/signIn.dto';
 import { Public } from './decorators/isPublic.decorator';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -9,6 +8,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Rol } from 'src/usuarios/enum/rol.enum';
 import { PerfilEntity } from 'src/usuarios/entities/perfil.entity';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { SignUpDto } from './dto/signUp.dto';
 
 
 @ApiBearerAuth()
@@ -33,6 +33,16 @@ export class AuthController {
     @Req() req:Request & {user:{sub:number,username:string,rol:Rol,profileId:number,refreshToken:string}},
   ){
     return this.authService.signIn(req.user)
+  }
+
+  @Post('sign-up')
+  @Public()
+  @ApiOperation({summary:'Registrar usuario.'})
+  async signUp(
+    @Body() signUpDto:SignUpDto,
+  ){
+    return await this.authService.signUp(signUpDto)
+
   }
 
   @Post('forgot-password')

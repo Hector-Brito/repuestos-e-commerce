@@ -23,7 +23,7 @@ export class CreateUsuarioDto {
 
     @IsEnum(Rol)
     @IsOptional()
-    rol:Rol
+    rol?:Rol
 
 
     @ApiProperty(
