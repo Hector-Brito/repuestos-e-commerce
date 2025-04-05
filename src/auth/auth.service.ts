@@ -110,7 +110,7 @@ export class AuthService {
     async resetPassword(resetPasswordDto:ResetPasswordDto){
         
         try{
-            const tokenIsValid:{email:string} = await this.jwtService.verifyAsync(resetPasswordDto.token)
+            const tokenIsValid:{email:string} = await this.jwtService.verifyAsync(resetPasswordDto.token,{secret:jwtConstants.secret})
             const user = await this.usuariosService.findOneByEmail(tokenIsValid.email)
             user.password = await hash(resetPasswordDto.newPassword)
             return await this.usuariosService.save(user)

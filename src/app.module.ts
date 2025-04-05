@@ -10,6 +10,7 @@ import { EnviosModule } from './envios/envios.module';
 import { FacturasModule } from './facturas/facturas.module';
 import { PagosModule } from './pagos/pagos.module';
 import { AuthModule } from './auth/auth.module';
+import { ReportesModule } from './reportes/reportes.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AuthModule } from './auth/auth.module';
 
       }
     ),
+    ReportesModule,
 
   ],
   controllers: [AppController],
