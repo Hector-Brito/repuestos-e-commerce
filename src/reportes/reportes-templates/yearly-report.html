@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Ventas Anuales - {{empresa}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .report-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #1a4f8c;
+            color: white;
+            padding: 20px;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+        }
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .year-container {
+            background-color: #f2f2f2;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-bottom: 1px solid #ddd;
+        }
+        .content {
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr.top-seller {
+            background-color: #e6f7e6;
+            font-weight: bold;
+        }
+        .summary-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .summary-box {
+            flex: 1;
+            margin: 0 10px;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .summary-box.orders {
+            background-color: #e6f0fa;
+        }
+        .summary-box.revenue {
+            background-color: #e6f7e6;
+        }
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .footer {
+            background-color: #f2f2f2;
+            padding: 15px;
+            text-align: center;
+            border-radius: 0 0 5px 5px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="header">
+            <div>
+                <h1>{{nombre_reporte}}</h1>
+                <h2>{{empresa}}</h2>
+            </div>
+            <div class="logo">
+                <img src="{{url_logo}}" alt="Logo {{empresa}}">
+            </div>
+        </div>
+        
+        <div class="year-container">
+            <strong>Año:</strong> <span id="current-year">{{año}}</span>
+        </div>
+        
+        <div class="content">
+            <h2>Rendimiento de Ventas por Vendedor</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Vendedor</th>
+                        <th>Cantidad de Pedidos</th>
+                        <th>Valor Total Pedidos ({{moneda}})</th>
+                        <th>Ventas en Tienda</th>
+                        <th>Valor Ventas en Tienda ({{moneda}})</th>
+                        <th>Total Ventas ({{moneda}})</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="top-seller">
+                        <td>{{vendedor1_posicion}}</td>
+                        <td>{{vendedor1_nombre}}</td>
+                        <td>{{vendedor1_cantidad_pedidos}}</td>
+                        <td>{{vendedor1_valor_pedidos}}</td>
+                        <td>{{vendedor1_ventas_tienda}}</td>
+                        <td>{{vendedor1_valor_ventas_tienda}}</td>
+                        <td>{{vendedor1_total_ventas}}</td>
+                    </tr>
+                    <tr>
+                        <td>{{vendedor2_posicion}}</td>
+                        <td>{{vendedor2_nombre}}</td>
+                        <td>{{vendedor2_cantidad_pedidos}}</td>
+                        <td>{{vendedor2_valor_pedidos}}</td>
+                        <td>{{vendedor2_ventas_tienda}}</td>
+                        <td>{{vendedor2_valor_ventas_tienda}}</td>
+                        <td>{{vendedor2_total_ventas}}</td>
+                    </tr>
+                    <tr>
+                        <td>{{vendedor3_posicion}}</td>
+                        <td>{{vendedor3_nombre}}</td>
+                        <td>{{vendedor3_cantidad_pedidos}}</td>
+                        <td>{{vendedor3_valor_pedidos}}</td>
+                        <td>{{vendedor3_ventas_tienda}}</td>
+                        <td>{{vendedor3_valor_ventas_tienda}}</td>
+                        <td>{{vendedor3_total_ventas}}</td>
+                    </tr>
+                    <tr>
+                        <td>{{vendedor4_posicion}}</td>
+                        <td>{{vendedor4_nombre}}</td>
+                        <td>{{vendedor4_cantidad_pedidos}}</td>
+                        <td>{{vendedor4_valor_pedidos}}</td>
+                        <td>{{vendedor4_ventas_tienda}}</td>
+                        <td>{{vendedor4_valor_ventas_tienda}}</td>
+                        <td>{{vendedor4_total_ventas}}</td>
+                    </tr>
+                    <tr>
+                        <td>{{vendedor5_posicion}}</td>
+                        <td>{{vendedor5_nombre}}</td>
+                        <td>{{vendedor5_cantidad_pedidos}}</td>
+                        <td>{{vendedor5_valor_pedidos}}</td>
+                        <td>{{vendedor5_ventas_tienda}}</td>
+                        <td>{{vendedor5_valor_ventas_tienda}}</td>
+                        <td>{{vendedor5_total_ventas}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="summary-section">
+                <div class="summary-box orders">
+                    <h3>TOTAL DE PEDIDOS</h3>
+                    <div class="summary-value">{{total_pedidos}}</div>
+                    <p>Pedidos realizados en el año</p>
+                </div>
+                
+                <div class="summary-box revenue">
+                    <h3>VALOR TOTAL DE VENTAS</h3>
+                    <div class="summary-value">{{moneda}} {{valor_total_ventas}}</div>
+                    <p>Ingresos del año</p>
+                </div>
+                
+                <div class="summary-box" style="background-color: #f0e6fa;">
+                    <h3>VENTAS EN TIENDA</h3>
+                    <div class="summary-value">{{total_ventas_tienda}}</div>
+                    <p>Valor: {{moneda}} {{valor_total_ventas_tienda}}</p>
+                </div>
+            </div>
+            
+            <div class="summary-section">
+                <div class="summary-box">
+                    <h3>VENDEDOR DEL AÑO</h3>
+                    <div class="summary-value">{{mejor_vendedor_nombre}}</div>
+                    <p>{{mejor_vendedor_pedidos}} pedidos | {{moneda}} {{mejor_vendedor_valor}}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Este reporte fue generado automáticamente - {{empresa}} &copy; {{año}}</p>
+        </div>
+    </div>
+    
+    <script>
+        // Si se desea establecer el año actual automáticamente, descomentar estas líneas
+        const now = new Date();
+        document.getElementById('current-year').textContent = now.getFullYear();
+    </script>
+</body>
+</html>

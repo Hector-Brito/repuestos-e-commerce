@@ -37,9 +37,44 @@ export class ReportesService {
     }
 
     async generateMonthlyReport(){
+        const data = {
+            titulo:'REPORTE DE VENTAS',
+            empresa:'AUTOPARTES-MATURIN'
+        }
+        const template = await this.getTemplate('monthly-report')
+        const html = template(data)
+        const browser = await puppeteer.launch({headless:true,args:['--no-sandbox']})
+        const page = await browser.newPage()
+        await page.setContent(html)
+        const buffer = await page.pdf(
+          {
+            printBackground:true,
+            format:'A4'
+          }
+        )
+        await browser.close()
+        return buffer
     }
 
-    async generateYearlyReport(){}
+    async generateYearlyReport(){
+        const data = {
+            titulo:'REPORTE DE VENTAS',
+            empresa:'AUTOPARTES-MATURIN'
+        }
+        const template = await this.getTemplate('yearly-report')
+        const html = template(data)
+        const browser = await puppeteer.launch({headless:true,args:['--no-sandbox']})
+        const page = await browser.newPage()
+        await page.setContent(html)
+        const buffer = await page.pdf(
+          {
+            printBackground:true,
+            format:'A4'
+          }
+        )
+        await browser.close()
+        return buffer
+    }
 
     async generateCategoryReport(){}
 
