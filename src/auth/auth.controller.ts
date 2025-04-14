@@ -26,7 +26,7 @@ export class AuthController {
     return await this.authService.refreshToken(req.user.sub,req.user.refreshToken)
   }
   
-  @Post('login')
+  @Post('iniciar-sesion')
   @Public()
   @UseGuards(LocalAuthGuard)
   @ApiOperation({summary:'Iniciar sesion.'})
@@ -37,7 +37,7 @@ export class AuthController {
     return this.authService.signIn(req.user)
   }
 
-  @Post('sign-up')
+  @Post('registrarse')
   @Public()
   @ApiOperation({summary:'Registrar usuario.'})
   async signUp(
