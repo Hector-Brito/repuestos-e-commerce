@@ -9,6 +9,7 @@ import { Rol } from 'src/usuarios/enum/rol.enum';
 import { PerfilEntity } from 'src/usuarios/entities/perfil.entity';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { SignUpDto } from './dto/signUp.dto';
+import { SignInDto } from './dto/singIn.dto';
 
 
 @ApiBearerAuth()
@@ -30,6 +31,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiOperation({summary:'Iniciar sesion.'})
   signIn(
+    @Body() signInDto:SignInDto,
     @Req() req:Request & {user:{sub:number,username:string,rol:Rol,profileId:number,refreshToken:string}},
   ){
     return this.authService.signIn(req.user)

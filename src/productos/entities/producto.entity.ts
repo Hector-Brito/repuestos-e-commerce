@@ -56,7 +56,7 @@ export class ProductoEntity {
             let precioConDescuento = this.descuento > 0 && this.descuento < 101 ? this.precio - ((this.descuento * this.precio)/100) : this.precio
 
             if (this.aplicarDescuentoCategoria){
-                precioConDescuento = this.categoria && this.categoria.descuento > 0 && this.categoria.descuento < 101  ? precioConDescuento -((this.categoria.descuento * precioConDescuento)/100):precioConDescuento
+                precioConDescuento = this.categoria && this.categoria.descuento > 0 && this.categoria.descuento < 101  ? precioConDescuento - ((this.categoria.descuento * precioConDescuento)/100):precioConDescuento
             
             }
 

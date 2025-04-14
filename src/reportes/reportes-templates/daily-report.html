@@ -136,46 +136,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="top-seller">
-                        <td>{{vendedor1_posicion}}</td>
-                        <td>{{vendedor1_nombre}}</td>
-                        <td>{{vendedor1_cantidad_pedidos}}</td>
-                        <td>{{vendedor1_valor_pedidos}}</td>
-                        <td>{{vendedor1_ventas_tienda}}</td>
-                        <td>{{vendedor1_valor_ventas_tienda}}</td>
-                    </tr>
-                    <tr>
-                        <td>{{vendedor2_posicion}}</td>
-                        <td>{{vendedor2_nombre}}</td>
-                        <td>{{vendedor2_cantidad_pedidos}}</td>
-                        <td>{{vendedor2_valor_pedidos}}</td>
-                        <td>{{vendedor2_ventas_tienda}}</td>
-                        <td>{{vendedor2_valor_ventas_tienda}}</td>
-                    </tr>
-                    <tr>
-                        <td>{{vendedor3_posicion}}</td>
-                        <td>{{vendedor3_nombre}}</td>
-                        <td>{{vendedor3_cantidad_pedidos}}</td>
-                        <td>{{vendedor3_valor_pedidos}}</td>
-                        <td>{{vendedor3_ventas_tienda}}</td>
-                        <td>{{vendedor3_valor_ventas_tienda}}</td>
-                    </tr>
-                    <tr>
-                        <td>{{vendedor4_posicion}}</td>
-                        <td>{{vendedor4_nombre}}</td>
-                        <td>{{vendedor4_cantidad_pedidos}}</td>
-                        <td>{{vendedor4_valor_pedidos}}</td>
-                        <td>{{vendedor4_ventas_tienda}}</td>
-                        <td>{{vendedor4_valor_ventas_tienda}}</td>
-                    </tr>
-                    <tr>
-                        <td>{{vendedor5_posicion}}</td>
-                        <td>{{vendedor5_nombre}}</td>
-                        <td>{{vendedor5_cantidad_pedidos}}</td>
-                        <td>{{vendedor5_valor_pedidos}}</td>
-                        <td>{{vendedor5_ventas_tienda}}</td>
-                        <td>{{vendedor5_valor_ventas_tienda}}</td>
-                    </tr>
+                    {{#each mejores_vendedores}}
+                        <tr class="top-seller">
+                            <td>{{vendedor_id}}</td>
+                            <td>{{vendedor_username}}</td>
+                            <td>{{vendedor1_cantidad_pedidos}}</td>
+                            <td>{{valorTotalOnline}}</td>
+                            <td>{{vendedor1_ventas_tienda}}</td>
+                            <td>{{valorTotalTienda}}</td>
+                        </tr>
+                    {{/each}}
                 </tbody>
             </table>
             

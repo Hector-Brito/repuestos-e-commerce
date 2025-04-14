@@ -3,12 +3,13 @@ import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PedidoEntity } from './entities/pedido.entity';
-import { Equal, Repository } from 'typeorm';
+import { Between, Equal, IsNull, Not, Repository } from 'typeorm';
 import { PedidoItemService } from './pedidoItem.service';
 import { PedidoItemEntity } from './entities/pedidoItem.entity';
 import { CreatePedidoItemDto } from './dto/create-pedido-item.dto';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { Rol } from 'src/usuarios/enum/rol.enum';
+import { TipoDePedido } from './enum/tipoDePedido.enum';
 
 
 
@@ -50,6 +51,102 @@ export class PedidosService {
     
     pedido.items = pedidoItems
     return await this.pedidoRepository.save(pedido,{reload:true})
+  }
+
+  async getTotalValuesFromSales(fromDay:number,ToDay:number,fromMonth:number,ToMonth:number,fromYear:number,ToYear:number){
+    const from = new Date(fromYear,fromMonth,fromDay)
+    const to = new Date(ToYear,ToMonth,ToDay)
+
+    //Valor total envios online
+    const ventasOnline = await this.pedidoRepository.find(
+      {
+        where:{
+          tipoDePedido:TipoDePedido.Online,
+          vendedor:Not(IsNull()),
+          pagado:true,
+          fecha:Between(from,to)
+        },
+        relations:{
+          vendedor:true,
+          items:{
+            producto:true
+          }
+        }
+      }
+    )
+    //Valor total ventas tienda
+    const ventasTienda = await this.pedidoRepository.find(
+      {
+        where:{
+          tipoDePedido:TipoDePedido.Tienda,
+          vendedor:Not(IsNull()),
+          pagado:true,
+          fecha:Between(from,to)
+        },
+        relations:{
+          vendedor:true,
+          items:{
+            producto:true
+          }
+        }
+      }
+    )
+    //vendedores con mas ventas
+    const mayoresVendedores = await this.pedidoRepository
+    .createQueryBuilder('pedido')
+    .leftJoin('pedido.vendedor','vendedor')
+    .leftJoin('pedido.items','items')
+    .leftJoin('items.producto','producto')
+    .leftJoin('producto.categoria','categoria')
+    .select(['vendedor.id','vendedor.username'])
+    .addSelect('COUNT(pedido.id)','ventasTotales')
+    .addSelect(`SUM(items.cantidad*((producto.precio-(producto.precio * producto.descuento)/100) - ((categoria.descuento * (producto.precio-(producto.precio * producto.descuento)/100))/100)))`,'valorTotal')
+    .addSelect(
+      `ROUND(SUM(CASE pedido.tipoDePedido WHEN 'Tienda' THEN (items.cantidad*((producto.precio-(producto.precio * producto.descuento)/100) - ((categoria.descuento * (producto.precio-(producto.precio * producto.descuento)/100))/100))) ELSE 0 END), 2)`,
+      'valorTotalTienda',
+    )
+    .addSelect(
+      `ROUND(SUM(CASE pedido.tipoDePedido WHEN 'Online' THEN (items.cantidad*((producto.precio-(producto.precio * producto.descuento)/100) - ((categoria.descuento * (producto.precio-(producto.precio * producto.descuento)/100))/100))) ELSE 0 END), 2)`,
+      'valorTotalOnline',
+    )
+    .where('pedido.vendedor IS NOT NULL')
+    .andWhere('pedido.pagado = :pagado',{pagado:true})
+    .andWhere('pedido.fecha >= :from',{from:from})
+    .andWhere('pedido.fecha <= :to',{to:to})
+    .groupBy('vendedor.id')
+    .limit(5)
+    .orderBy('COUNT(pedido.id)','DESC')
+    .getRawMany()
+    console.log(mayoresVendedores)
+    let valorTotalEnviosOnline = 0
+    let valorTotalVentasTienda = 0
+    let mejor_vendedor_valor = 0
+    ventasOnline.forEach((venta) => {
+      valorTotalEnviosOnline += venta.getTotalPrice()
+      if (mayoresVendedores[0].vendedor_username === venta.vendedor.username){
+        mejor_vendedor_valor += venta.getTotalPrice()
+      }
+    })
+    ventasTienda.forEach((venta) => {
+      valorTotalVentasTienda += venta.getTotalPrice()
+      if (mayoresVendedores[0].vendedor_username === venta.vendedor.username){
+        mejor_vendedor_valor += venta.getTotalPrice()
+      }
+    })
+    const valoresTotales = {
+      mayoresVendedores,
+      mejor_vendedor_valor:Math.round(mejor_vendedor_valor),
+      enviosOnline:{
+        enviosTotales:ventasOnline.length,
+        valorTotalEnviosOnline
+      },
+      ventasTienda:{
+        ventasTotales:ventasTienda.length,
+        valorTotalVentasTienda
+      },
+      valorTotal: Math.round(valorTotalEnviosOnline + valorTotalVentasTienda)
+    }
+    return valoresTotales
   }
 
   async findAll() {
