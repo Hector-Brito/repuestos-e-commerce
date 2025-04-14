@@ -9,7 +9,7 @@ export class IsInDatabaseConstraint implements ValidatorConstraintInterface{
     ){}
 
     async validate(value: number, args: ValidationArguments): Promise<boolean>{
-        if (!(typeof value === 'number')) throw new BadRequestException('ID debe ser numerica.')
+        if (!(typeof value === 'number')) throw new BadRequestException('ID de la entidad debe ser numerica.')
         const [entityClass, property= 'id'] = args.constraints
         const repository = this.entityManager.getRepository(entityClass)
         const found = await repository.exists(

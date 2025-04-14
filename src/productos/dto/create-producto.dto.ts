@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsUrl,IsString, IsOptional, IsBoolean, IsNumber, IsNotEmpty, Max, Min} from "class-validator";
+import { IsString, IsOptional, IsBoolean, IsNumber, IsNotEmpty, Max, Min} from "class-validator";
 import { CategoriaEntity } from "src/categorias/entities/categoria.entity";
 import { IsInDatabase } from "src/custom-validators/IsInDatabase.validator";
 import { UniqueInDatabase } from "src/custom-validators/UniqueInDatabase.validator";
@@ -7,9 +7,6 @@ import { ProductoEntity } from "../entities/producto.entity";
 
 export class CreateProductoDto {
 
-    @IsUrl()
-    @IsOptional()
-    image_url:string
 
     @IsString()
     @IsNotEmpty()
@@ -22,6 +19,7 @@ export class CreateProductoDto {
 
     @IsBoolean()
     @IsOptional()
+    @Type(() => Boolean)
     disponible:boolean
 
     @IsNumber({maxDecimalPlaces:2})
@@ -39,13 +37,16 @@ export class CreateProductoDto {
 
     @IsBoolean()
     @IsOptional()
+    @Type(() => Boolean)
     aplicarDescuentoCategoria:boolean
 
     @IsNumber()
     @IsOptional()
+    @Type(() => Number)
     stock:number
 
     @IsInDatabase(CategoriaEntity,'id')
     @IsOptional()
+    @Type(() => Number)
     categoriaId?:number
 }

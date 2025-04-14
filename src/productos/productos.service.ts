@@ -16,11 +16,12 @@ export class ProductosService {
     private readonly categoriaService:CategoriasService
   ){}
 
-  async create(createProductoDto: CreateProductoDto) {
+  async create(createProductoDto: CreateProductoDto & {imageName?:string}) {
     const categoria:CategoriaEntity|undefined = createProductoDto.categoriaId ? await this.categoriaService.findOne(createProductoDto.categoriaId): undefined
     const producto = this.productoRepository.create(
       {
         ...createProductoDto,
+        image:createProductoDto?.imageName,
         categoria:categoria
       }
     )
@@ -65,12 +66,15 @@ export class ProductosService {
     return await this.productoRepository.save(products)
   }
 
-  async update(id: number, updateProductoDto: UpdateProductoDto) {
+  async update(id: number, updateProductoDto: UpdateProductoDto & {imageName?:string}) {
     const categoria:CategoriaEntity|undefined = updateProductoDto.categoriaId ? await this.categoriaService.findOne(updateProductoDto.categoriaId): undefined
     const producto = await this.findOne(id)
     Object.assign(producto,updateProductoDto)
     if (categoria){
       producto.categoria = categoria
+    }
+    if (updateProductoDto?.imageName){
+      producto.image = updateProductoDto?.imageName
     }
     producto['precioConDescuento'] = producto.aplicarPrecioConDescuento()
     return await this.productoRepository.save(producto)

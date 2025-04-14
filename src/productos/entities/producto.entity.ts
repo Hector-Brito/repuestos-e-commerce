@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { CategoriaEntity } from "src/categorias/entities/categoria.entity";
 import {v4 as uuid} from 'uuid';
 import { PedidoItemEntity } from "src/pedidos/entities/pedidoItem.entity";
@@ -11,7 +11,7 @@ export class ProductoEntity {
     id:number
 
     @Column({type:'text',nullable:true})
-    image_url:string
+    image:string
 
     @Column({type:'varchar',length:50,nullable:false,unique:true})
     nombre:string

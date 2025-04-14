@@ -11,6 +11,8 @@ import { FacturasModule } from './facturas/facturas.module';
 import { PagosModule } from './pagos/pagos.module';
 import { AuthModule } from './auth/auth.module';
 import { ReportesModule } from './reportes/reportes.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -22,6 +24,11 @@ import { ReportesModule } from './reportes/reportes.module';
     FacturasModule,
     PagosModule,
     AuthModule,
+    ReportesModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(),'src','images'),
+      serveRoot: '/imagenes/',
+    }),
     TypeOrmModule.forRoot(
       {
         type:'postgres',
@@ -35,8 +42,6 @@ import { ReportesModule } from './reportes/reportes.module';
 
       }
     ),
-    ReportesModule,
-
   ],
   controllers: [AppController],
   providers: [AppService],
