@@ -7,6 +7,7 @@ import { DbExceptionFilter } from './filters/db-exception-filter.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors()
   app.useGlobalFilters(new DbExceptionFilter())
   app.useGlobalPipes(
     new ValidationPipe(

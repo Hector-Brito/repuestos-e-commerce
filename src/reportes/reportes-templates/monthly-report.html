@@ -121,11 +121,11 @@
     <div class="report-container">
         <div class="header">
             <div>
-                <h1>Reporte de Ventas Mensuales</h1>
+                <h1>REPORTES DE VENTAS MENSUALES</h1>
                 <h2>{{empresa}}</h2>
             </div>
             <div class="logo">
-                <img src="{{url_logo}}" alt="Logo {{empresa}}">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDgwLDIyNGMtMTYuNTQsMC0zMC44MiwxMC4zNi0zNi42MiwyNUgzNjhWMTQ0YzAtOC44NC03LjE2LTE2LTE2LTE2aC0zMmMtOC44NCwwLTE2LDcuMTYtMTYsMTZ2MTA1SDEyOGMtMTcuNjcsMC0zMiwxNC4zMy0zMiwzMnYxNmgtMTZjLTguODQsMC0xNiw3LjE2LTE2LDE2djQ4YzAsOC44NCw3LjE2LDE2LDE2LDE2aDE2YzAsNTIuOTQsNDMuMDYsOTYsOTYsOTZzOTYtNDMuMDYsOTYtOTZoMTI4YzAsNTIuOTQsNDMuMDYsOTYsOTYsOTZzOTYtNDMuMDYsOTYtOTZoMTZjOC44NCwwLDE2LTcuMTYsMTYtMTZ2LTMyYzAtMzUuMzUtMjguNjUtNjQtNjQtNjR6bS0zMDQsMTkyYy0yNi41MSwwLTQ4LTIxLjQ5LTQ4LTQ4czIxLjQ5LTQ4LDQ4LTQ4czQ4LDIxLjQ5LDQ4LDQ4UzIwMi41MSw0MTYsMTc2LDQxNnptMjI0LTk2SDI0MS4zOGMtMTUuNi0yOC4zLTQ1LjM3LTQ4LTc5LjM4LTQ4cy02My43OCwxOS43LTc5LjM4LDQ4SDgwdi0xNmMwLTguODIsNy4xOC0xNiwxNi0xNmgyODhjOC44NCwwLDE2LDcuMTYsMTYsMTZ2MTZ6bTgwLDk2Yy0yNi41MSwwLTQ4LTIxLjQ5LTQ4LTQ4czIxLjQ5LTQ4LDQ4LTQ4czQ4LDIxLjQ5LDQ4LDQ4UzUwNi41MSw0MTYsNDgwLDQxNnptMC0xMjhjLTQwLjY1LDAtNzQuMywyOS4zOC04MS4yLDY4SDQwMHYtMTZjMC0yNi41MS0yMS40OS00OC00OC00OEg5NmMtMjYuNTEsMC00OCwyMS40OS00OCw0OHYxNkg0My4zOEMzNi4zLDMxNy4zOCwyLjkyLDI4OCwwLDI1NmgzNi42MmMxMC4xOCwzMi4yOSw0MC4zNyw1Niw3NS4zOCw1NmgzNjhjMzUuMDEsMCw2NS4yLTIzLjcxLDc1LjM4LTU2SDQ4MHoiLz48L3N2Zz4=" alt="Logo {{empresa}}" id="logo-placeholder">
             </div>
         </div>
         
@@ -148,53 +148,23 @@
                     </tr>
                 </thead>
                 <tbody>
+                {{#each mejores_vendedores}}
                     <tr class="top-seller">
-                        <td>1</td>
-                        <td>{{vendedor1_nombre}}</td>
-                        <td>{{vendedor1_cantidad_pedidos}}</td>
-                        <td>{{vendedor1_valor_pedidos}}</td>
-                        <td>{{vendedor1_ventas_tienda}}</td>
-                        <td>{{vendedor1_valor_ventas_tienda}}</td>
+                        <td>{{vendedor_id}}</td>
+                        <td>{{vendedor_username}}</td>
+                        <td>{{ventasOnline}}</td>
+                        <td>{{valorTotalOnline}}</td>
+                        <td>{{ventasTienda}}</td>
+                        <td>{{valorTotalTienda}}</td>
                     </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>{{vendedor2_nombre}}</td>
-                        <td>{{vendedor2_cantidad_pedidos}}</td>
-                        <td>{{vendedor2_valor_pedidos}}</td>
-                        <td>{{vendedor2_ventas_tienda}}</td>
-                        <td>{{vendedor2_valor_ventas_tienda}}</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>{{vendedor3_nombre}}</td>
-                        <td>{{vendedor3_cantidad_pedidos}}</td>
-                        <td>{{vendedor3_valor_pedidos}}</td>
-                        <td>{{vendedor3_ventas_tienda}}</td>
-                        <td>{{vendedor3_valor_ventas_tienda}}</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>{{vendedor4_nombre}}</td>
-                        <td>{{vendedor4_cantidad_pedidos}}</td>
-                        <td>{{vendedor4_valor_pedidos}}</td>
-                        <td>{{vendedor4_ventas_tienda}}</td>
-                        <td>{{vendedor4_valor_ventas_tienda}}</td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>{{vendedor5_nombre}}</td>
-                        <td>{{vendedor5_cantidad_pedidos}}</td>
-                        <td>{{vendedor5_valor_pedidos}}</td>
-                        <td>{{vendedor5_ventas_tienda}}</td>
-                        <td>{{vendedor5_valor_ventas_tienda}}</td>
-                    </tr>
+                {{/each}}
                 </tbody>
             </table>
             
             <div class="summary-section">
                 <div class="summary-box orders">
                     <h3>TOTAL DE PEDIDOS</h3>
-                    <div class="summary-value">{{total_pedidos}}</div>
+                    <div class="summary-value">{{total_ventas_online}}</div>
                     <p>Pedidos realizados en el mes</p>
                 </div>
                 

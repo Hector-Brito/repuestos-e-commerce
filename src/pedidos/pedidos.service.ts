@@ -10,6 +10,7 @@ import { CreatePedidoItemDto } from './dto/create-pedido-item.dto';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { Rol } from 'src/usuarios/enum/rol.enum';
 import { TipoDePedido } from './enum/tipoDePedido.enum';
+import { DateParameters } from 'src/reportes/types/dateParameter.type';
 
 
 
@@ -53,9 +54,9 @@ export class PedidosService {
     return await this.pedidoRepository.save(pedido,{reload:true})
   }
 
-  async getTotalValuesFromSales(fromDay:number,ToDay:number,fromMonth:number,ToMonth:number,fromYear:number,ToYear:number){
-    const from = new Date(fromYear,fromMonth,fromDay)
-    const to = new Date(ToYear,ToMonth,ToDay)
+  async getTotalValuesFromSales(dateParameters:DateParameters){
+    const from = new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay)
+    const to = new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay)
 
     //Valor total envios online
     const ventasOnline = await this.pedidoRepository.find(
@@ -99,8 +100,10 @@ export class PedidosService {
     .leftJoin('items.producto','producto')
     .leftJoin('producto.categoria','categoria')
     .select(['vendedor.id','vendedor.username'])
+    .addSelect(`COUNT(CASE pedido.tipoDePedido WHEN 'Tienda' THEN pedido.id END)`,'ventasTienda')
+    .addSelect(`COUNT(CASE pedido.tipoDePedido WHEN 'Online' THEN pedido.id END)`,'ventasOnline')
     .addSelect('COUNT(pedido.id)','ventasTotales')
-    .addSelect(`SUM(items.cantidad*((producto.precio-(producto.precio * producto.descuento)/100) - ((categoria.descuento * (producto.precio-(producto.precio * producto.descuento)/100))/100)))`,'valorTotal')
+    .addSelect(`ROUND(SUM(items.cantidad*((producto.precio-(producto.precio * producto.descuento)/100) - ((categoria.descuento * (producto.precio-(producto.precio * producto.descuento)/100))/100))),2)`,'valorTotal')
     .addSelect(
       `ROUND(SUM(CASE pedido.tipoDePedido WHEN 'Tienda' THEN (items.cantidad*((producto.precio-(producto.precio * producto.descuento)/100) - ((categoria.descuento * (producto.precio-(producto.precio * producto.descuento)/100))/100))) ELSE 0 END), 2)`,
       'valorTotalTienda',
@@ -117,7 +120,6 @@ export class PedidosService {
     .limit(5)
     .orderBy('COUNT(pedido.id)','DESC')
     .getRawMany()
-    console.log(mayoresVendedores)
     let valorTotalEnviosOnline = 0
     let valorTotalVentasTienda = 0
     let mejor_vendedor_valor = 0
@@ -138,13 +140,13 @@ export class PedidosService {
       mejor_vendedor_valor:Math.round(mejor_vendedor_valor),
       enviosOnline:{
         enviosTotales:ventasOnline.length,
-        valorTotalEnviosOnline
+        valorTotalEnviosOnline:Math.round(valorTotalEnviosOnline)
       },
       ventasTienda:{
         ventasTotales:ventasTienda.length,
-        valorTotalVentasTienda
+        valorTotalVentasTienda:Math.round(valorTotalVentasTienda)
       },
-      valorTotal: Math.round(valorTotalEnviosOnline + valorTotalVentasTienda)
+      valorTotal: Math.round(valorTotalEnviosOnline + valorTotalVentasTienda)//todas las ventas
     }
     return valoresTotales
   }
@@ -157,6 +159,7 @@ export class PedidosService {
           items:{
             producto:true
           },
+          vendedor:true,
           envios:true
         }
       }

@@ -8,6 +8,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AllowRoles } from 'src/auth/decorators/roles.decorator';
 import { Rol } from 'src/usuarios/enum/rol.enum';
+import { Public } from 'src/auth/decorators/isPublic.decorator';
 
 @ApiBearerAuth()
 @UseGuards(RolesGuard)
@@ -28,6 +29,7 @@ export class PedidosController {
   }
 
   @Get()
+  @Public()
   @AllowRoles([Rol.Admin,Rol.Seller])
   @ApiOperation({summary:'Obtiene todos los pedidos (Admin, Seller).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
