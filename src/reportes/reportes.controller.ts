@@ -20,8 +20,7 @@ export class ReportesController {
     @Query('untilYear') untilYear?:number
   ){
     const now = new Date()
-    now.setHours(0,0,0,0)//verificar que por defecto haga un reporte de venta diaria, y lo demas pueda personalizarse a la informacion que uno necesite
-    //luego de eso hacer los reportes de categoria, productos y eso.
+    now.setHours(0,0,0,0)
     const dateParameters:DateParameters = {
       fromDay:fromDay ?? now.getDate(),
       fromMonth:fromMonth ?? now.getMonth(), 
