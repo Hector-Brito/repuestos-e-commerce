@@ -5,6 +5,7 @@ import * as handlebars from 'handlebars';
 import puppeteer from 'puppeteer';
 import { PedidosService } from 'src/pedidos/pedidos.service';
 import { DateParameters } from './types/dateParameter.type';
+import { ProductosService } from 'src/productos/productos.service';
 
 
 @Injectable()
@@ -12,6 +13,7 @@ export class ReportesService {
 
     constructor(
       private pedidosService:PedidosService,
+      private productosService:ProductosService
     ){}
 
     async getTemplate(name:string){
@@ -100,11 +102,31 @@ export class ReportesService {
         return buffer
     }
 
-    async generateProductHistoryReport(){}
+    async generateZeroExistenceProductsReport(){
+      const zeroProducts = await this.productosService.getZeroExistenceProducts()
+      const data = {
+        empresa:'AUTOPARTES-MATURIN',
+        fecha_actual:new Date().toLocaleDateString('es-ES'),
+        año:new Date().getFullYear(),
+        productos:zeroProducts
+      }
+      const template = await this.getTemplate('zeroProducts-report')
+      const html = template(data)
+      const browser = await puppeteer.launch({headless:true,args:['--no-sandbox']})
+      const page = await browser.newPage()
+      await page.setContent(html)
+      const buffer = await page.pdf(
+        {
+          printBackground:true,
+          format:'A4'
+        }
+      )
+      await browser.close()
+      return buffer
+    }
 
     async generateMostSoldProductsReport(){}
 
     async generateLeastSoldProductsReport(){}
-
-    async generateZeroExistenceProductsReport(){}
+    
 }

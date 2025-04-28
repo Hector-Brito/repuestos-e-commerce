@@ -56,7 +56,19 @@ export class ReportesController {
       untilMonth:untilMonth ?? now.getMonth(),
       untilYear:untilYear ?? now.getFullYear() 
     }
+    //revisar colocando mas productos vendidos y probar que esta bien
     const pdf = await this.reportesService.generateCategoryReport(dateParameters)
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'inline; filename=sales-report.pdf')
+    res.end(pdf)
+  }
+
+  @Get('reporte-ventas/productos')
+  @Public()
+  async getZeroExistenceProductsReport(
+    @Res() res:Response,
+  ){
+    const pdf = await this.reportesService.generateZeroExistenceProductsReport()
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', 'inline; filename=sales-report.pdf')
     res.end(pdf)

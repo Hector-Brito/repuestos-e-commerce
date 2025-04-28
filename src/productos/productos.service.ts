@@ -3,7 +3,7 @@ import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductoEntity } from './entities/producto.entity';
-import { In, Repository } from 'typeorm';
+import { Equal, In, MoreThan, Repository } from 'typeorm';
 import { CategoriasService } from 'src/categorias/categorias.service';
 import { CategoriaEntity } from 'src/categorias/entities/categoria.entity';
 import { UpdateDescuentos } from './dto/update-descuentos.dto';
@@ -15,6 +15,22 @@ export class ProductosService {
     @InjectRepository(ProductoEntity) private readonly productoRepository:Repository<ProductoEntity>,
     private readonly categoriaService:CategoriasService
   ){}
+
+  async getZeroExistenceProducts(){
+    return await this.productoRepository.find(
+      {
+        where:{
+          stock:Equal(0)
+        },
+        select:{
+          id:true,
+          nombre:true,
+          codigo:true
+        }
+      }
+    )
+  }
+
 
   async create(createProductoDto: CreateProductoDto & {imageName?:string}) {
     const categoria:CategoriaEntity|undefined = createProductoDto.categoriaId ? await this.categoriaService.findOne(createProductoDto.categoriaId): undefined
