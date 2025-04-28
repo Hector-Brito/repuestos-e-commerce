@@ -151,6 +151,50 @@ export class PedidosService {
     return valoresTotales
   }
 
+  async getTotalSalesFromCategory(dateParameters:DateParameters){
+    const from = new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay)
+    const to = new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay)
+    const productosVendidos = await this.pedidoRepository
+    .createQueryBuilder('pedido')
+    .leftJoin('pedido.items','items')
+    .leftJoin('items.producto','producto')
+    .leftJoin('producto.categoria','categoria')
+    .select(['categoria.id','categoria.nombre','producto.nombre','producto.codigo'])
+    .addSelect('SUM(items.cantidad)','totalProductos')
+    .where('pedido.pagado = :pagado',{pagado:true})
+    .andWhere('pedido.fecha >= :from',{from:from})
+    .andWhere('pedido.fecha <= :to',{to:to})
+    .groupBy('categoria.id')
+    .addGroupBy('producto.id')
+    .orderBy('categoria.id')
+    .addOrderBy('producto.nombre')
+    .getRawMany()
+
+    const totalProductosPorCategoria = {}
+    productosVendidos.forEach(item =>{
+
+      const categoria_id = item.categoria_id
+      const categoria_nombre = item.categoria_nombre
+      if(!totalProductosPorCategoria[categoria_id]){
+        totalProductosPorCategoria[categoria_nombre] = {
+          categoria_id,
+          categoria_nombre:categoria_nombre,
+          productos:[],
+          totalProductoPorCategoria:0
+        }
+
+      }
+      totalProductosPorCategoria[categoria_nombre].productos.push({
+        producto_nombre:item.producto_nombre,
+        producto_cantidad: parseInt(item.totalProductos,10),
+        producto_codigo:item.producto_codigo,
+      })
+
+      totalProductosPorCategoria[categoria_nombre].totalProductoPorCategoria += parseInt(item.totalProductos,10)
+    })
+    return totalProductosPorCategoria
+  }
+
   async findAll() {
     const pedidos = await this.pedidoRepository.find(
       {
