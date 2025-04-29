@@ -86,4 +86,16 @@ export class ReportesController {
     res.end(pdf)
   }
 
+
+
+  @Get('reporte-ventas/productos-menos-vendidos')
+  @Public()
+  async getLeastSoldProductsReport(
+    @Res() res:Response,
+  ){
+    const pdf = await this.reportesService.generateLeastSoldProductsReport()
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'inline; filename=sales-report.pdf')
+    res.end(pdf)
+  }
 }

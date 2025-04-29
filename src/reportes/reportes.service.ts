@@ -148,6 +148,27 @@ export class ReportesService {
       return buffer
     }
 
-    async generateLeastSoldProductsReport(){}
+    async generateLeastSoldProductsReport(){
+      const lessSoldProducts = await this.pedidosService.getSoldProductsReport('ASC')
+      const data = {
+        empresa:'AUTOPARTES-MATURIN',
+        fecha_actual:new Date().toLocaleDateString('es-ES'),
+        año:new Date().getFullYear(),
+        productos:lessSoldProducts
+      }
+      const template = await this.getTemplate('lessSoldProducts-report')
+      const html = template(data)
+      const browser = await puppeteer.launch({headless:true,args:['--no-sandbox']})
+      const page = await browser.newPage()
+      await page.setContent(html)
+      const buffer = await page.pdf(
+        {
+          printBackground:true,
+          format:'A4'
+        }
+      )
+      await browser.close()
+      return buffer
+    }
     
 }
