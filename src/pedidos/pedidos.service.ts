@@ -195,6 +195,20 @@ export class PedidosService {
     return totalProductosPorCategoria
   }
 
+  async getSoldProductsReport(order:'ASC'|'DESC'){
+    const productosVendidos = await this.pedidoRepository
+    .createQueryBuilder('pedido')
+    .leftJoin('pedido.items','items')
+    .leftJoin('items.producto','producto')
+    .select(['producto.id','producto.nombre','producto.codigo'])
+    .addSelect('SUM(items.cantidad)','totalProductos')
+    .where('pedido.pagado = :pagado',{pagado:true})
+    .groupBy('producto.id')
+    .orderBy('SUM(items.cantidad)',order)
+    .getRawMany()
+    return productosVendidos
+  }
+
   async findAll() {
     const pedidos = await this.pedidoRepository.find(
       {
