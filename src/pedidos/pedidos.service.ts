@@ -23,7 +23,7 @@ export class PedidosService {
     private readonly usuariosService:UsuariosService,
   ){}
 
-  async create(user:{sub:number,username:string,role:Rol,profileId:number},createPedidoDto: CreatePedidoDto) {
+  async create(user:{sub:number,username:string,rol:Rol,profileId:number},createPedidoDto: CreatePedidoDto) {
     const createPedidoItemsDtos:CreatePedidoItemDto[] = createPedidoDto.items
     const pedidoItems:PedidoItemEntity[] = await Promise.all( createPedidoItemsDtos.map(async(item) => {
       const pedidoItem = await this.pedidoItemService.create(item)
@@ -38,13 +38,15 @@ export class PedidosService {
       }
     )
     const usuario = await this.usuariosService.findOne(user.sub)
-    if (user.role === Rol.User){
+    if (user.rol === Rol.User){
       if (usuario.perfil === null) throw new ConflictException('Es necesario tener un perfil para crear un pedido.')
       pedido.perfil = usuario.perfil
       
     }
-    if(user.role === Rol.Seller || user.role === Rol.Admin){
+
+    if(user.rol === Rol.Seller || user.rol === Rol.Admin){
       if (!(typeof createPedidoDto.perfilId === 'number'))throw new ConflictException('Es necesario un perfilId para crear el pedido.')
+      
       const perfil = await this.usuariosService.findOnePerfil(createPedidoDto.perfilId)
       pedido.vendedor = usuario
       pedido.perfil = perfil

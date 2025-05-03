@@ -23,7 +23,7 @@ export class PedidosController {
   @ApiOperation({summary:'Crea un pedido (Admin, Seller, User).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
   async create(
-    @Req() request:Request & {user:{sub:number,username:string,role:Rol,profileId:number}},
+    @Req() request:Request & {user:{sub:number,username:string,rol:Rol,profileId:number}},
     @Body() createPedidoDto: CreatePedidoDto) {
     return await this.pedidosService.create(request.user,createPedidoDto);
   }
