@@ -63,12 +63,16 @@ export class AuthService {
         return tokens
     }
 
-    async signIn(usuario:{sub:number,username:string,rol:Rol,profileId:number,refreshToken:string}):Promise<Tokens>{    
+    async signIn(usuario:{sub:number,username:string,rol:Rol,profileId:number,refreshToken:string}){    
         const payload = {sub:usuario.sub,username:usuario.username,rol:usuario.rol,profileId:usuario.profileId ?? undefined}
-            
         const tokens = await this.getTokens(payload)
         await this.updateRefreshTokenHash(payload.sub,tokens.refreshToken)
-        return tokens
+        return {
+            usuarioId:payload.sub,
+            username:payload.username,
+            profileId:payload.profileId ?? null,
+            tokens
+        }
         
     }
     
@@ -82,7 +86,12 @@ export class AuthService {
         }
         const tokens:Tokens = await this.getTokens(payload)
         await this.updateRefreshTokenHash(payload.sub,tokens.refreshToken)
-        return tokens
+        return {
+            usuarioId:payload.sub,
+            username:payload.username,
+            profileId:payload.profileId ?? null,   
+            tokens
+        }
     }
 
     async logout(usuarioId:number,){

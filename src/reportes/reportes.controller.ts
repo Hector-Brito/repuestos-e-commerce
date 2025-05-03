@@ -3,13 +3,17 @@ import { ReportesService } from './reportes.service';
 import { Public } from 'src/auth/decorators/isPublic.decorator';
 import { Response } from 'express';
 import { DateParameters } from './types/dateParameter.type';
+import { AllowRoles } from 'src/auth/decorators/roles.decorator';
+import { Rol } from 'src/usuarios/enum/rol.enum';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('reportes')
 export class ReportesController {
   constructor(private readonly reportesService: ReportesService) {}
 
   @Get('reporte-ventas')
-  @Public()
+  @AllowRoles([Rol.Admin])
+  @ApiOperation({summary:'Genera un reporte de ventas en un periodo.'})
   async getSalesReport(
     @Res() res:Response,
     @Query('fromDay') fromDay?:number,
@@ -36,7 +40,8 @@ export class ReportesController {
   }
 
   @Get('reporte-ventas/categorias')
-  @Public()
+  @AllowRoles([Rol.Admin])
+  @ApiOperation({summary:'Genera un reporte de ventas de categorias en un periodo.'})
   async getCategoryReport(
     @Res() res:Response,
     @Query('fromDay') fromDay?:number,
@@ -63,8 +68,9 @@ export class ReportesController {
     res.end(pdf)
   }
 
-  @Get('reporte-ventas/productos-con-existencia-zero')
-  @Public()
+  @Get('reporte-ventas/productos-con-existencia-cero')
+  @AllowRoles([Rol.Admin])
+  @ApiOperation({summary:'Genera un reporte de productos con existencia cero.'})
   async getZeroExistenceProductsReport(
     @Res() res:Response,
   ){
@@ -76,7 +82,8 @@ export class ReportesController {
 
   
   @Get('reporte-ventas/productos-mas-vendidos')
-  @Public()
+  @AllowRoles([Rol.Admin])
+  @ApiOperation({summary:'Genera un reporte de productos mas vendidos.'})
   async getMostSoldProductsReport(
     @Res() res:Response,
   ){
@@ -89,7 +96,8 @@ export class ReportesController {
 
 
   @Get('reporte-ventas/productos-menos-vendidos')
-  @Public()
+  @AllowRoles([Rol.Admin])
+  @ApiOperation({summary:'Genera un reporte de productos menos vendidos.'})
   async getLeastSoldProductsReport(
     @Res() res:Response,
   ){
@@ -98,4 +106,5 @@ export class ReportesController {
     res.setHeader('Content-Disposition', 'inline; filename=sales-report.pdf')
     res.end(pdf)
   }
+  //DOCUMENTAR TODO
 }
