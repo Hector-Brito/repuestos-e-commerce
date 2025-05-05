@@ -70,6 +70,7 @@ export class AuthService {
         return {
             usuarioId:payload.sub,
             username:payload.username,
+            rol:payload.rol,
             profileId:payload.profileId ?? null,
             tokens
         }
@@ -89,6 +90,7 @@ export class AuthService {
         return {
             usuarioId:payload.sub,
             username:payload.username,
+            rol:payload.rol,
             profileId:payload.profileId ?? null,   
             tokens
         }
