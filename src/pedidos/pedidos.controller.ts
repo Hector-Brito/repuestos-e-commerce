@@ -29,7 +29,6 @@ export class PedidosController {
   }
 
   @Get()
-  @Public()
   @AllowRoles([Rol.Admin,Rol.Seller])
   @ApiOperation({summary:'Obtiene todos los pedidos (Admin, Seller).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})

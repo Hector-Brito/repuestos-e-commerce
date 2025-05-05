@@ -245,12 +245,17 @@ export class PedidosService {
             id:user.profileId
           }
         },
+        relations:{
+          items:{
+            producto:true
+          }
+        },
         order:{
           fecha:'DESC'
         }
       }
     )
-
+    usuarioPedidos.map((pedido) => pedido['precioTotal'] = pedido.getTotalPrice())
     return usuarioPedidos
   }
 
