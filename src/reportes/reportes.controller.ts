@@ -12,6 +12,7 @@ export class ReportesController {
   constructor(private readonly reportesService: ReportesService) {}
 
   @Get('reporte-ventas')
+  @Public()
   @AllowRoles([Rol.Admin])
   @ApiOperation({summary:'Genera un reporte de ventas en un periodo.'})
   async getSalesReport(
