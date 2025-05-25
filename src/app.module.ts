@@ -38,7 +38,7 @@ import { join } from 'path';
         password:'localpas',
         database:'e-commerce_db',
         entities:[__dirname+'/**/*.entity{.ts,.js}'],
-        synchronize:true,
+        synchronize:false,
 
       }
     ),

@@ -23,6 +23,9 @@ export class ReportesService {
     }
 
     async getTotalValues(dateParameters:DateParameters){
+      await this.pedidosService.getTotalValuesSales(dateParameters)
+      console.log('Executed')
+      //
       const valoresTotales = await this.pedidosService.getTotalValuesFromSales(dateParameters)
       const data = {
           año:new Date().getFullYear(),
@@ -30,15 +33,17 @@ export class ReportesService {
           periodoFinal:new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay).toLocaleDateString('es-ES'),
           empresa:'AUTOPARTES-MATURIN',
           valor_total_ventas:valoresTotales.valorTotal,
-          total_ventas_tienda:valoresTotales.ventasTienda.ventasTotales,
-          total_ventas_online:valoresTotales.enviosOnline.enviosTotales,
-          valor_total_ventas_tienda:valoresTotales.ventasTienda.valorTotalVentasTienda,
-          valor_total_ventas_online:valoresTotales.enviosOnline.valorTotalEnviosOnline,
+          //total_ventas_tienda:valoresTotales.ventasTienda.ventasTotales,
+          //total_ventas_online:valoresTotales.enviosOnline.enviosTotales,
+          //valor_total_ventas_tienda:valoresTotales.ventasTienda.valorTotalVentasTienda,
+          //valor_total_ventas_online:valoresTotales.enviosOnline.valorTotalEnviosOnline,
           mejor_vendedor_nombre:valoresTotales.mayoresVendedores[0]?.vendedor_username ?? undefined,
           mejor_vendedor_pedidos:valoresTotales.mayoresVendedores[0]?.ventasTotales ?? undefined,
           mejor_vendedor_valor:valoresTotales.mejor_vendedor_valor,
           mejores_vendedores:valoresTotales.mayoresVendedores,
       }
+      //Englobar las ventas en tienda y ventas online
+      //filtar por vendedor
       return data
     }
 
@@ -52,7 +57,8 @@ export class ReportesService {
         const buffer = await page.pdf(
           {
             printBackground:true,
-            format:'A4'
+            format:'A4',
+            landscape:true
           }
         )
         await browser.close()

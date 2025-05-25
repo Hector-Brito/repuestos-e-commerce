@@ -56,6 +56,30 @@ export class PedidosService {
     return await this.pedidoRepository.save(pedido,{reload:true})
   }
 
+  async getTotalValuesSales(dateParameters:DateParameters){
+    const from = new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay)
+    const to = new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay)
+
+    //vendedores con mas ventas
+    const mayoresVendedores = await this.pedidoRepository
+    .createQueryBuilder('pedido')
+    .leftJoin('pedido.vendedor','vendedor')
+    .leftJoin('pedido.pago','pago')//debe tener una relacion one-to-many
+    .leftJoin('pedido.items','items')
+    .leftJoin('items.producto','producto')
+    .leftJoin('producto.categoria','categoria')
+    .select(['vendedor.id','vendedor.username','pago.nombreFormaDePago'])
+    .addSelect(`ROUND(SUM(items.cantidad*((producto.precio-(producto.precio * producto.descuento)/100) - ((categoria.descuento * (producto.precio-(producto.precio * producto.descuento)/100))/100))),2)`,'valorTotal')
+    .where('pedido.vendedor IS NOT NULL')
+    .andWhere('pedido.pago IS NOT NULL')
+    .andWhere('pedido.pagado = :pagado',{pagado:true})
+    .andWhere('pedido.fecha >= :from',{from:from})
+    .andWhere('pedido.fecha <= :to',{to:to})
+    .groupBy('vendedor.id, vendedor.username, pago.nombreFormaDePago')
+    .getRawMany()
+    console.log(mayoresVendedores)
+  }
+
   async getTotalValuesFromSales(dateParameters:DateParameters){
     const from = new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay)
     const to = new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay)
