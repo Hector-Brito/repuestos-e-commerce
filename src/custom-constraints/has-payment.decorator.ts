@@ -11,7 +11,7 @@ export class HasPaymentConstraint implements ValidatorConstraintInterface{
     ){}
     async validate(value: number, validationArguments?: ValidationArguments): Promise<boolean>{
         const pedido = await this.pedidosRepository.findOneBy({id:value})
-        if (pedido?.pago){
+        if (pedido?.pagos){
             return true
         }
         return false

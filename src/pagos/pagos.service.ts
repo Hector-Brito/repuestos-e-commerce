@@ -15,39 +15,57 @@ export class PagosService{
         private readonly pedidosService:PedidosService
     ){}
 
+    /**
+     * Crea un pago y lo asigna a un pedido
+     * @param pedidoId 
+     * @param createPagoDto 
+     * @returns 
+     */
     async create(pedidoId:number,createPagoDto:CreatePagoDto){
         const pedido = await this.pedidosService.findOne(pedidoId)
-        if (pedido.pago != null){
-            throw new ForbiddenException('Un pago ya ha sido asignado a este pedido')
-        }
         const pago = this.pagosRepository.create({...createPagoDto})
-        pedido.pago = pago
-        return await this.pedidosService.save(pedido)
+        pago.pedido = pedido
+        return await this.pagosRepository.save(pago)
     }
 
+    /**
+     * Obtiene todos los pagos
+     * @returns 
+     */
     async findAll(){
         return await this.pagosRepository.find({})
     }
 
+    /**
+     * Obtiene un pago por id
+     * @param id 
+     * @returns 
+     */
     async findOne(id:number){
         return await this.pagosRepository.findOneByOrFail({id:id})
         
     }
 
-    async update(pedidoId:number,updatePagoDto:UpdatePagoDto){
-        const pedido = await this.pedidosService.findOne(pedidoId)
-        Object.assign(pedido.pago,updatePagoDto)
-        return await this.pedidosService.save(pedido)
-        
+    /**
+     * Actualiza los datos de un pago
+     * @param pedidoId 
+     * @param updatePagoDto 
+     * @returns 
+     */
+    async update(id:number,updatePagoDto:UpdatePagoDto){
+        const pago = await this.pagosRepository.findOneByOrFail({id:id})
+        Object.assign(pago,updatePagoDto)
+        return await this.pagosRepository.save(pago)    
     }
 
-    async remove(pedidoId:number){
-        const pedido = await this.pedidosService.findOne(pedidoId)
-        if (pedido.pago){
-            const pago = pedido.pago
-            return await this.pagosRepository.remove(pago)
-        }
-        throw new ConflictException('El pedido no tiene un pago')
+    /**
+     * Elimina un pago
+     * @param id 
+     * @returns 
+     */
+    async remove(id:number){
+        const pago = await this.pagosRepository.findOneByOrFail({id:id})//manejar error
+        return await this.pagosRepository.remove(pago)
     }
         
 }

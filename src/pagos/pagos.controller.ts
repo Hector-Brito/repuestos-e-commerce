@@ -40,22 +40,22 @@ export class PagosController {
     return this.pagosService.findOne(+id);
   }
 
-  @Patch('pedido/:pedidoId')
+  @Patch(':id')
   @AllowRoles([Rol.Admin,Rol.Seller,Rol.User])
-  @ApiOperation({summary:'Actualiza un pago de un pedido (Admin, Seller, User).'})
+  @ApiOperation({summary:'Actualiza un pago (Admin, Seller, User).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
   update(
-    @Param('pedidoId') pedidoId:number,
+    @Param('id') id:number,
     @Body() updatePagoDto: UpdatePagoDto
   ) {
-    return this.pagosService.update(pedidoId,updatePagoDto);
+    return this.pagosService.update(id,updatePagoDto);
   }
 
-  @Delete('pedido/:pedidoId')
+  @Delete(':id')
   @AllowRoles([Rol.Admin,Rol.Seller,Rol.User])
-  @ApiOperation({summary:'Elimina un pago de un pedido (Admin, Seller, User).'})
+  @ApiOperation({summary:'Elimina un pago (Admin, Seller, User).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
-  async remove(@Param('pedidoId',ParseIntPipe) pedidoId: number) {
-    return await this.pagosService.remove(pedidoId)
+  async remove(@Param('id',ParseIntPipe) id: number) {
+    return await this.pagosService.remove(id)
   }
 }

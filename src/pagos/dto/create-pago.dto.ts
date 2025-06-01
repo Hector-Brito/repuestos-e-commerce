@@ -1,5 +1,5 @@
 
-import { IsEnum, IsNumberString, Length} from "class-validator";
+import { IsEnum, IsNumberString, IsOptional, Length} from "class-validator";
 import { FormaDePago } from "../enum/formaDePago.enum";
 
 
@@ -10,6 +10,7 @@ export class CreatePagoDto{
 
     @IsNumberString()
     @Length(13)
+    @IsOptional()
     numeroReferencia:string
 
 }

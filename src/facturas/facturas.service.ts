@@ -16,11 +16,12 @@ export class FacturasService{
 
     async create(createFacturaDto:CreateFacturaDto){
         const pedido = await this.pedidosService.findOne(createFacturaDto.pedidoId)
-        if (!pedido.pago){
+        if (!pedido.pagos){
             throw new ConflictException(`El pedido de ID ${pedido.id} no tiene un pago para ser facturado.`)
         }
         const factura = this.facturaRepository.create({...createFacturaDto})
-        factura.pago = pedido.pago
+        console.log(factura.pagos)
+        factura.pagos = pedido.pagos
         factura.pedido = pedido
         return await this.facturaRepository.save(factura)
     }

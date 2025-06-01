@@ -30,7 +30,7 @@ export class AuthService {
         }
         if (usuario.profileId) payload['profileId'] = usuario.profileId
 
-        const accessToken:string = await this.jwtService.signAsync(payload,{expiresIn:"15m",secret:jwtConstants.secret})
+        const accessToken:string = await this.jwtService.signAsync(payload,{expiresIn:"1d",secret:jwtConstants.secret})//cambiar
         const refreshToken:string = await this.jwtService.signAsync(payload,{expiresIn:'7d',secret:jwtConstants.refreshSecret})
 
         return {

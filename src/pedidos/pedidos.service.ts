@@ -310,7 +310,7 @@ export class PedidosService {
         },
         relations:{
           envios:true,
-          pago:true,
+          pagos:true,
           items:{
             producto:true
           }

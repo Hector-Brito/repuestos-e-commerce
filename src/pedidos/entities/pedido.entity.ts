@@ -35,9 +35,9 @@ export class PedidoEntity {
     @OneToMany(() => PedidoItemEntity,(items) => items.pedido,{nullable:false,cascade:true,onDelete:'CASCADE'})
     items:PedidoItemEntity[]
 
-    @OneToOne(() => PagoEntity,{nullable:true,cascade:true,onDelete:'SET NULL',eager:true})
+    @OneToMany(() => PagoEntity,(pagos) => pagos.pedido,{nullable:true,cascade:true,onDelete:'SET NULL',eager:true})
     @JoinColumn()
-    pago:PagoEntity
+    pagos:PagoEntity[]
 
     @OneToMany(() => EnvioEntity,(envio) => envio.pedido,{nullable:true,cascade:true,onDelete:'SET NULL'})
     envios:EnvioEntity[]
