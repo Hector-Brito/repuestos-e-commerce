@@ -1,7 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn,ManyToOne} from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn,ManyToOne, CreateDateColumn} from "typeorm";
 import { PedidoEntity } from "src/pedidos/entities/pedido.entity";
 import { FormaDePago } from "../enum/formaDePago.enum";
 import { FacturaEntity } from "src/facturas/entities/factura.entity";
+import { DecimalToTransformer } from "src/productos/transformers/string-to-decimal.transformer";
 
 @Entity({name:'pago'})
 export class PagoEntity{
@@ -18,6 +19,15 @@ export class PagoEntity{
     @Column({type:'enum',enum:FormaDePago,default:FormaDePago.PagoMovil})
     nombreFormaDePago:FormaDePago
 
+    @Column({type:'decimal',nullable:false,transformer:new DecimalToTransformer(),precision:5,scale:2})
+    monto:number
+
+    @Column({type:'decimal',nullable:true,transformer:new DecimalToTransformer(),precision:5,scale:2})
+    tasaBsDelDia:number
+
     @Column({type:'varchar',length:14,nullable:true})
     numeroReferencia:string
+
+    @CreateDateColumn({type:'timestamp with time zone'})
+    fecha:Date
 }

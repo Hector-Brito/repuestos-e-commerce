@@ -24,7 +24,11 @@ export class PagosService{
     async create(pedidoId:number,createPagoDto:CreatePagoDto){
         const pedido = await this.pedidosService.findOne(pedidoId)
         const pago = this.pagosRepository.create({...createPagoDto})
+        //Obtener la tasa del bcv
+        const response_json = await (await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=usd&format_date=default&rounded_price=true',{method:'GET'})).json()
+        const tasaBsDelDia = response_json.price
         pago.pedido = pedido
+        pago.tasaBsDelDia = tasaBsDelDia
         return await this.pagosRepository.save(pago)
     }
 
