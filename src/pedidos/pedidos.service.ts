@@ -11,8 +11,7 @@ import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { Rol } from 'src/usuarios/enum/rol.enum';
 import { TipoDePedido } from './enum/tipoDePedido.enum';
 import { DateParameters } from 'src/reportes/types/dateParameter.type';
-
-
+import { FormaDePago } from 'src/pagos/enum/formaDePago.enum';
 
 @Injectable()
 export class PedidosService {
@@ -60,24 +59,32 @@ export class PedidosService {
     const from = new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay)
     const to = new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay)
 
-    //vendedores con mas ventas
-    const mayoresVendedores = await this.pedidoRepository
+    //ventas
+    const ventas = await this.pedidoRepository
     .createQueryBuilder('pedido')
     .leftJoin('pedido.vendedor','vendedor')
+    .leftJoin('pedido.perfil','comprador')
+    .leftJoin('pedido.pagos','pagos')
     .leftJoin('pedido.items','items')
     .leftJoin('items.producto','producto')
     .leftJoin('producto.categoria','categoria')
-    .select(['vendedor.id','vendedor.username'])
+    .select(['vendedor.id','vendedor.username','comprador.nombre'])
     .addSelect(`ROUND(SUM(items.cantidad*((producto.precio-(producto.precio * producto.descuento)/100) - ((categoria.descuento * (producto.precio-(producto.precio * producto.descuento)/100))/100))),2)`,'valorTotal')
+    .addSelect(`JSON_AGG(
+        JSON_BUILD_OBJECT(
+            'nombreFormaDePago', pagos.nombreFormaDePago,
+            'monto', pagos.monto
+        )
+    )`, 'pagos')
     .where('pedido.vendedor IS NOT NULL')
-    .andWhere('pedido.pagado = :pagado',{pagado:false})
+    //.andWhere('pedido.pagado = :pagado',{pagado:true})
     .andWhere('pedido.fecha >= :from',{from:from})
     .andWhere('pedido.fecha <= :to',{to:to})
-    .groupBy('vendedor.id, vendedor.username')
+    .groupBy('vendedor.id, vendedor.username, comprador.id')
     .getRawMany()
-    console.log(mayoresVendedores)
+    return ventas
   }
-
+  
   async getTotalValuesFromSales(dateParameters:DateParameters){
     const from = new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay)
     const to = new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay)

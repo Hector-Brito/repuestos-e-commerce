@@ -32,11 +32,11 @@ import { join } from 'path';
     TypeOrmModule.forRoot(
       {
         type:'postgres',
-        host:'localhost',
-        port:5432,
-        username:'postgres',
-        password:'localpas',
-        database:'e-commerce_db',
+        host:process.env.DATABASE_HOST,
+        port:Number(process.env.DATABASE_PORT) || 5432,
+        username:process.env.DATABASE_USER,
+        password:process.env.DATABASE_PASSWORD,
+        database:process.env.DATABASE_DBNAME,
         entities:[__dirname+'/**/*.entity{.ts,.js}'],
         synchronize:true,
 
