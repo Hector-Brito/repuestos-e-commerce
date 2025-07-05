@@ -55,36 +55,94 @@ export class PedidosService {
     return await this.pedidoRepository.save(pedido,{reload:true})
   }
 
-  async getTotalValuesSales(dateParameters:DateParameters){
-    const from = new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay)
-    const to = new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay)
+async getTotalValuesSales(dateParameters: DateParameters) {
+    const from = new Date(dateParameters.fromYear, dateParameters.fromMonth, dateParameters.fromDay);
+    const to = new Date(dateParameters.untilYear, dateParameters.untilMonth, dateParameters.untilDay);
 
-    //ventas
+    // Obtener tasa de cambio del día
+    const response_json = await (await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=usd&format_date=default&rounded_price=true', {method: 'GET'})).json();
+    const tasaBsDelDia = response_json.price;
+
+    // Obtener las ventas
     const ventas = await this.pedidoRepository
-    .createQueryBuilder('pedido')
-    .leftJoin('pedido.vendedor','vendedor')
-    .leftJoin('pedido.perfil','comprador')
-    .leftJoin('pedido.pagos','pagos')
-    .leftJoin('pedido.items','items')
-    .leftJoin('items.producto','producto')
-    .leftJoin('producto.categoria','categoria')
-    .select(['vendedor.id','vendedor.username','comprador.nombre'])
-    .addSelect(`ROUND(SUM(items.cantidad*((producto.precio-(producto.precio * producto.descuento)/100) - ((categoria.descuento * (producto.precio-(producto.precio * producto.descuento)/100))/100))),2)`,'valorTotal')
-    .addSelect(`JSON_AGG(
-        JSON_BUILD_OBJECT(
-            'nombreFormaDePago', pagos.nombreFormaDePago,
-            'monto', pagos.monto
-        )
-    )`, 'pagos')
-    .where('pedido.vendedor IS NOT NULL')
-    //.andWhere('pedido.pagado = :pagado',{pagado:true})
-    .andWhere('pedido.fecha >= :from',{from:from})
-    .andWhere('pedido.fecha <= :to',{to:to})
-    .groupBy('vendedor.id, vendedor.username, comprador.id')
-    .getRawMany()
-    return ventas
-  }
-  
+        .createQueryBuilder('pedido')
+        .leftJoin('pedido.vendedor', 'vendedor')
+        .leftJoin('pedido.perfil', 'comprador')
+        .leftJoin('pedido.pagos', 'pagos')
+        .leftJoin('pedido.items', 'items')
+        .leftJoin('pedido.factura','factura')
+        .leftJoin('items.producto', 'producto')
+        .leftJoin('producto.categoria', 'categoria')
+        .select(['vendedor.id', 'vendedor.username', 'comprador.nombre','factura.id'])
+        .addSelect(`JSON_AGG(
+            JSON_BUILD_OBJECT(
+                'nombreFormaDePago', pagos.nombreFormaDePago,
+                'monto', pagos.monto
+            )
+        )`, 'pagos')
+        .where('pedido.vendedor IS NOT NULL')
+        .where('pedido.factura IS NOT NULL')
+        .andWhere('pedido.fecha >= :from', { from: from })
+        .andWhere('pedido.fecha <= :to', { to: to })
+        .groupBy('vendedor.id, vendedor.username, comprador.id, factura.id')
+        .getRawMany();
+        
+    // Procesar los resultados para agrupar por tipo de pago
+    const processedResults = ventas.map(venta => {
+        // Definir qué métodos de pago son en USD y cuáles en BS
+        const metodosPagoUSD = ['ZELLE', 'EFECTIVO']; // Estos métodos son en dólares
+        const metodosPagoBS = ['PAGOMOVIL', 'TRANSFERENCIA', 'EFECTIVOBS']; // Estos métodos son en bolívares
+
+        // Inicializar todos los tipos de pago con 0
+        const paymentTypes = {
+            'PAGOMOVIL': 0,
+            'TRANSFERENCIA': 0,
+            'ZELLE': 0,
+            'EFECTIVO': 0,
+            'EFECTIVOBS': 0
+        };
+
+        // Sumar los montos por cada tipo de pago
+        venta.pagos.forEach(pago => {
+            const tipoPago = pago.nombreFormaDePago.toUpperCase();
+            if (paymentTypes.hasOwnProperty(tipoPago)) {
+                paymentTypes[tipoPago] += parseFloat(pago.monto);
+            }
+        });
+
+        // Calcular montos totales
+        let MONTO = 0; // Total en dólares
+        let MONTOBS = 0; // Total en bolívares
+
+        // Sumar montos en dólares
+        metodosPagoUSD.forEach(metodo => {
+            MONTO += paymentTypes[metodo];
+            MONTOBS += paymentTypes[metodo] * tasaBsDelDia;
+        });
+
+        // Sumar montos en bolívares (convertidos a dólares para MONTO)
+        metodosPagoBS.forEach(metodo => {
+            MONTO += paymentTypes[metodo] / tasaBsDelDia;
+            MONTOBS += paymentTypes[metodo];
+        });
+
+        // Crear el objeto resultante
+        return {
+            vendedor_id: venta.vendedor_id,
+            vendedor_username: venta.vendedor_username,
+            comprador_nombre: venta.comprador_nombre,
+            MONTO: parseFloat(MONTO.toFixed(2)), // Total en dólares
+            MONTOBS: parseFloat(MONTOBS.toFixed(2)), // Total en bolívares
+            PAGOMOVIL: paymentTypes.PAGOMOVIL,
+            TRANSFERENCIA: paymentTypes.TRANSFERENCIA,
+            ZELLE: paymentTypes.ZELLE,
+            EFECTIVO: paymentTypes.EFECTIVO,
+            EFECTIVOBS: paymentTypes.EFECTIVOBS,
+            //TASA_CAMBIO: tasaBsDelDia // Opcional: incluir la tasa usada
+        };
+    });
+    return [processedResults, tasaBsDelDia];
+}
   async getTotalValuesFromSales(dateParameters:DateParameters){
     const from = new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay)
     const to = new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay)

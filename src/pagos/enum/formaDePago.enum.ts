@@ -4,4 +4,5 @@ export enum FormaDePago{
     PagoMovil="PAGOMOVIL",
     Transferencia="TRANSFERENCIA",
     Zelle="ZELLE",
+    EfectivoBs="EFECTIVOBS",
 }

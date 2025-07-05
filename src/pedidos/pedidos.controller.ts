@@ -28,6 +28,7 @@ export class PedidosController {
     return await this.pedidosService.create(request.user,createPedidoDto);
   }
 
+  @Public()
   @Get()
   @AllowRoles([Rol.Admin,Rol.Seller])
   @ApiOperation({summary:'Obtiene todos los pedidos (Admin, Seller).'})

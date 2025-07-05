@@ -6,7 +6,9 @@ import { ApiBearerAuth, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/sw
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AllowRoles } from 'src/auth/decorators/roles.decorator';
 import { Rol } from 'src/usuarios/enum/rol.enum';
+import { Public } from 'src/auth/decorators/isPublic.decorator';
 
+@Public()
 @ApiBearerAuth()
 @UseGuards(RolesGuard)
 @Controller('pagos')

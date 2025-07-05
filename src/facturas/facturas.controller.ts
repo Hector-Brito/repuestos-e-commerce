@@ -5,12 +5,15 @@ import { UpdateFacturaDto } from './dto/update-factura.dto';
 import { ApiBearerAuth, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AllowRoles } from 'src/auth/decorators/roles.decorator';
 import { Rol } from 'src/usuarios/enum/rol.enum';
+import { Public } from 'src/auth/decorators/isPublic.decorator';
 
+@Public()
 @ApiBearerAuth()
 @Controller('facturas')
 export class FacturasController {
   constructor(private readonly facturasService: FacturasService) {}
 
+  
   @Post()
   @AllowRoles([Rol.Admin,Rol.Seller])
   @ApiOperation({summary:'Crea una factura (Admin, Seller).'})

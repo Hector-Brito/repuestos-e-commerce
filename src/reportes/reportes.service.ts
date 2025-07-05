@@ -22,14 +22,76 @@ export class ReportesService {
         return template
     }
 
+
+        /**
+     * Función auxiliar privada para generar un PDF usando Puppeteer.
+     * @param htmlContent El contenido HTML para convertir a PDF.
+     * @returns Un Buffer con el contenido del PDF.
+     */
+    private async _generatePdf(htmlContent: string): Promise<Buffer> {
+        let browser: any;
+        try {
+            const executablePath = process.env.EXECUTABLEPATH; 
+
+            const launchOptions: any = {
+                headless: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            };
+
+            if (executablePath && executablePath !== '') { // Asegúrate de que no sea una cadena vacía
+                launchOptions.executablePath = executablePath;
+            } else {
+                console.log('EXECUTABLEPATH no está definida o está vacía. Puppeteer intentará encontrar Chrome por defecto (para desarrollo local).');
+            }
+
+            browser = await puppeteer.launch(launchOptions);
+            const page = await browser.newPage();
+            await page.setContent(htmlContent, { waitUntil: 'networkidle0' }); // Añadido waitUntil para asegurar que todo cargue
+            
+            const buffer = await page.pdf({
+                printBackground: true,
+                format: 'A4'
+            });
+            return buffer;
+        } finally {
+            if (browser) {
+                await browser.close();
+            }
+        }
+    }
+
+
     async getTotalValues(dateParameters:DateParameters){
-      const ventasTotales = await this.pedidosService.getTotalValuesSales(dateParameters)
+      
+      const [ventasTotales,tasabcv] = await this.pedidosService.getTotalValuesSales(dateParameters)
+      console.log(ventasTotales)
+      const subTotales = {
+        total_monto_dolares:0,
+        total_monto_bs:0,
+        total_pagomovil_bs:0,
+        total_transferencia_bs:0,
+        total_zelle_dolares:0,
+        total_efectivo_bs:0,
+        total_efectivo_dolares:0,
+      }
+      ventasTotales.map((venta)=>{
+        subTotales.total_monto_dolares += venta.MONTO
+        subTotales.total_monto_bs += venta.MONTOBS
+        subTotales.total_pagomovil_bs += venta.PAGOMOVIL
+        subTotales.total_transferencia_bs += venta.TRANSFERENCIA
+        subTotales.total_zelle_dolares += venta.ZELLE
+        subTotales.total_efectivo_dolares += venta.EFECTIVO
+        subTotales.total_efectivo_bs += venta.EFECTIVOBS
+      })
+      //SOLO FALTA CALCULAR EL SUBTOTAL, tiene que haber una fila que sume todos los pagomovil, zelle, transferencia, efectivo y monto.
       const data = {
           año:new Date().getFullYear(),
           periodoInicial:new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay).toLocaleDateString('es-ES'),
           periodoFinal:new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay).toLocaleDateString('es-ES'),
           empresa:'AUTOPARTES-MATURIN',
-          ventasTotales:ventasTotales
+          ventasTotales:ventasTotales,
+          subtotales:subTotales,
+          tasabcv:tasabcv
       }
       //Englobar las ventas en tienda y ventas online
       //filtar por vendedor
@@ -40,18 +102,7 @@ export class ReportesService {
         const data = await this.getTotalValues(dateParameters) 
         const template = await this.getTemplate('daily-report')
         const html = template(data)
-        const browser = await puppeteer.launch({headless:true,args:['--no-sandbox']})
-        const page = await browser.newPage()
-        await page.setContent(html)
-        const buffer = await page.pdf(
-          {
-            printBackground:true,
-            format:'A4',
-            landscape:true
-          }
-        )
-        await browser.close()
-        return buffer
+        return this._generatePdf(html)
     }
 
     async getCategoryValues(dateParameters:DateParameters){
@@ -84,17 +135,7 @@ export class ReportesService {
         }
         const template = await this.getTemplate('category-report')
         const html = template(data)
-        const browser = await puppeteer.launch({headless:true,args:['--no-sandbox']})
-        const page = await browser.newPage()
-        await page.setContent(html)
-        const buffer = await page.pdf(
-          {
-            printBackground:true,
-            format:'A4'
-          }
-        )
-        await browser.close()
-        return buffer
+        return this._generatePdf(html)
     }
 
     async generateZeroExistenceProductsReport(){
@@ -107,17 +148,7 @@ export class ReportesService {
       }
       const template = await this.getTemplate('zeroProducts-report')
       const html = template(data)
-      const browser = await puppeteer.launch({headless:true,args:['--no-sandbox']})
-      const page = await browser.newPage()
-      await page.setContent(html)
-      const buffer = await page.pdf(
-        {
-          printBackground:true,
-          format:'A4'
-        }
-      )
-      await browser.close()
-      return buffer
+      return this._generatePdf(html)
     }
 
     async generateMostSoldProductsReport(){
@@ -130,17 +161,7 @@ export class ReportesService {
       }
       const template = await this.getTemplate('mostSoldProducts-report')
       const html = template(data)
-      const browser = await puppeteer.launch({headless:true,args:['--no-sandbox']})
-      const page = await browser.newPage()
-      await page.setContent(html)
-      const buffer = await page.pdf(
-        {
-          printBackground:true,
-          format:'A4'
-        }
-      )
-      await browser.close()
-      return buffer
+      return this._generatePdf(html)
     }
 
     async generateLeastSoldProductsReport(){
@@ -153,17 +174,7 @@ export class ReportesService {
       }
       const template = await this.getTemplate('lessSoldProducts-report')
       const html = template(data)
-      const browser = await puppeteer.launch({headless:true,args:['--no-sandbox']})
-      const page = await browser.newPage()
-      await page.setContent(html)
-      const buffer = await page.pdf(
-        {
-          printBackground:true,
-          format:'A4'
-        }
-      )
-      await browser.close()
-      return buffer
+      return this._generatePdf(html)
     }
     
 }

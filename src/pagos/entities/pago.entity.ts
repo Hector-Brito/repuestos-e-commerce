@@ -3,6 +3,7 @@ import { PedidoEntity } from "src/pedidos/entities/pedido.entity";
 import { FormaDePago } from "../enum/formaDePago.enum";
 import { FacturaEntity } from "src/facturas/entities/factura.entity";
 import { DecimalToTransformer } from "src/productos/transformers/string-to-decimal.transformer";
+import { Exclude } from "class-transformer";
 
 @Entity({name:'pago'})
 export class PagoEntity{
@@ -13,6 +14,7 @@ export class PagoEntity{
     @ManyToOne(() => PedidoEntity,(pedido) => pedido.pagos,{nullable:true})
     pedido:PedidoEntity
 
+    @Exclude()
     @ManyToOne(() => FacturaEntity, (factura) => factura.pagos,{nullable:true,cascade:true,onDelete:'SET NULL'})
     factura: FacturaEntity;
 

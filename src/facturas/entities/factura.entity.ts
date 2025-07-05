@@ -12,10 +12,9 @@ export class FacturaEntity{
     descripcion:string
 
     @OneToMany(() => PagoEntity, (pagos) => pagos.factura)
-    @JoinColumn()
     pagos: PagoEntity[]
 
-    @OneToOne(() => PedidoEntity,{nullable:false,eager:true,onDelete:'CASCADE'})
+    @OneToOne(() => PedidoEntity,{nullable:false,onDelete:'SET NULL'})
     @JoinColumn()
     pedido:PedidoEntity
 }

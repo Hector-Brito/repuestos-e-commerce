@@ -6,6 +6,7 @@ import { EnvioEntity } from "src/envios/entities/envio.entity";
 import { EstadoDePedido } from "../enum/estadosPedido.enum";
 import { PagoEntity } from "src/pagos/entities/pago.entity";
 import { UsuarioEntity } from "src/usuarios/entities/usuario.entity";
+import { FacturaEntity } from "src/facturas/entities/factura.entity";
 
 
 @Entity({name:'pedido'})
@@ -42,8 +43,11 @@ export class PedidoEntity {
     @OneToMany(() => EnvioEntity,(envio) => envio.pedido,{nullable:true,cascade:true,onDelete:'SET NULL'})
     envios:EnvioEntity[]
 
+    @OneToOne(() => FacturaEntity,{nullable:true,lazy:true,onDelete:'SET NULL'})
+    @JoinColumn()
+    factura:FacturaEntity
+
     getTotalPrice(){
-        
         if (this.items.length > 0){
             const total_item_prices:number[] = this.items.map((item) => item.cantidad * item.producto.aplicarPrecioConDescuento())
             const total:number = total_item_prices.reduce((previous,current) => current + previous)
