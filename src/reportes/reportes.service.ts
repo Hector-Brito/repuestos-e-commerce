@@ -26,26 +26,12 @@ export class ReportesService {
 private async _generatePdf(htmlContent: string): Promise<Buffer> {
     let browser: any;
     try {
-        const executablePath = process.env.EXECUTABLEPATH; // Será undefined en Render
-
         const launchOptions: any = {
             headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         };
 
-        // MODIFICACIÓN CLAVE AQUÍ:
-        // Siempre usa executablePath si está definido.
-        // Si no, Puppeteer intentará encontrarlo por defecto (no es lo ideal para Render)
-        // o usará PUPPETEER_EXECUTABLE_PATH si lo configuramos.
-        if (executablePath && executablePath !== '') {
-            launchOptions.executablePath = executablePath;
-        } else {
-            // Esta línea la podemos dejar o quitar, pero en Render no la verá
-            // y confiará en PUPPETEER_EXECUTABLE_PATH
-            // console.log('EXECUTABLEPATH no está definida o está vacía. Puppeteer intentará encontrar Chrome por defecto (para desarrollo local).');
-        }
-
-        browser = await puppeteer.launch(launchOptions); // Sigue llamando a puppeteer.launch
+        browser = await puppeteer.launch(launchOptions);
         const page = await browser.newPage();
         await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
