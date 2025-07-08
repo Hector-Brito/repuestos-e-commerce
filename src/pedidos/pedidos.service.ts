@@ -73,7 +73,7 @@ async getTotalValuesSales(dateParameters: DateParameters) {
         .leftJoin('pedido.factura','factura')
         .leftJoin('items.producto', 'producto')
         .leftJoin('producto.categoria', 'categoria')
-        .select(['vendedor.id', 'vendedor.username', 'comprador.nombre','factura.id'])
+        .select(['vendedor.id', 'vendedor.username', 'comprador.nombre','factura.id','factura.fecha'])
         .addSelect(`JSON_AGG(
             JSON_BUILD_OBJECT(
                 'nombreFormaDePago', pagos.nombreFormaDePago,
@@ -81,12 +81,12 @@ async getTotalValuesSales(dateParameters: DateParameters) {
             )
         )`, 'pagos')
         .where('pedido.vendedor IS NOT NULL')
-        .where('pedido.factura IS NOT NULL')
+        //.where('pedido.factura IS NOT NULL')
         .andWhere('pedido.fecha >= :from', { from: from })
         .andWhere('pedido.fecha <= :to', { to: to })
         .groupBy('vendedor.id, vendedor.username, comprador.id, factura.id')
         .getRawMany();
-        
+    console.log(ventas)
     // Procesar los resultados para agrupar por tipo de pago
     const processedResults = ventas.map(venta => {
         // Definir qué métodos de pago son en USD y cuáles en BS
@@ -126,8 +126,18 @@ async getTotalValuesSales(dateParameters: DateParameters) {
             MONTOBS += paymentTypes[metodo];
         });
 
+
+        const dateObject = new Date(venta.factura_fecha); 
+        const formattedDate = dateObject.toLocaleDateString('es-ES', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: '2-digit' 
+        });
+
         // Crear el objeto resultante
         return {
+            fecha_de_recibo:formattedDate,
+            numero_de_recibo:venta.factura_id,
             vendedor_id: venta.vendedor_id,
             vendedor_username: venta.vendedor_username,
             comprador_nombre: venta.comprador_nombre,

@@ -6,7 +6,7 @@ import puppeteer from 'puppeteer';
 import { PedidosService } from 'src/pedidos/pedidos.service';
 import { DateParameters } from './types/dateParameter.type';
 import { ProductosService } from 'src/productos/productos.service';
-
+import * as cheerio from 'cheerio';
 
 @Injectable()
 export class ReportesService {
@@ -21,6 +21,56 @@ export class ReportesService {
         const template = handlebars.compile(templateHtml)
         return template
     }
+ // Asegúrate de tenerlo instalado
+
+  private imageToBase64(filePath: string): string {
+    const ext = path.extname(filePath).substring(1);
+    const mimeType = {
+        png: 'image/png',
+        jpg: 'image/jpeg',
+        jpeg: 'image/jpeg',
+        svg: 'image/svg+xml',
+    }[ext] || 'application/octet-stream';
+
+    const imageBuffer = fs.readFileSync(filePath);
+    const base64Data = imageBuffer.toString('base64');
+    return `data:${mimeType};base64,${base64Data}`;
+}
+
+private embedImagesInHtml(html: string): string {
+    const $ = cheerio.load(html);
+
+    // Procesar <img>
+    $('img').each((_, el) => {
+        const src = $(el).attr('src');
+        if (src && src.startsWith('./')) {
+            const imagePath = path.join(process.cwd(), 'src', 'reportes', 'reportes-templates', src);
+            if (fs.existsSync(imagePath)) {
+                const base64Src = this.imageToBase64(imagePath);
+                $(el).attr('src', base64Src);
+            }
+        }
+    });
+
+    // Procesar estilos inline con background-image
+    $('[style]').each((_, el) => {
+        const style = $(el).attr('style') || '';
+        const regex = /background-image:\s*url\(['"]?(\.\/[^'")]+)['"]?\)/;
+        const match = style?.match(regex);
+
+        if (match && match[1]) {
+            const imagePath = path.join(process.cwd(), 'src', 'reportes', 'reportes-templates', match[1]);
+            if (fs.existsSync(imagePath)) {
+                const base64Src = this.imageToBase64(imagePath);
+                const newStyle = style.replace(regex, `background-image: url('${base64Src}')`);
+                $(el).attr('style', newStyle);
+            }
+        }
+    });
+
+    return $.html();
+}
+
 
 
 private async _generatePdf(htmlContent: string): Promise<Buffer> {
@@ -88,7 +138,8 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
         const data = await this.getTotalValues(dateParameters) 
         const template = await this.getTemplate('daily-report')
         const html = template(data)
-        return this._generatePdf(html)
+        const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
+        return this._generatePdf(htmlWithEmbeddedImages);
     }
 
     async getCategoryValues(dateParameters:DateParameters){
@@ -121,7 +172,8 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
         }
         const template = await this.getTemplate('category-report')
         const html = template(data)
-        return this._generatePdf(html)
+        const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
+        return this._generatePdf(htmlWithEmbeddedImages);
     }
 
     async generateZeroExistenceProductsReport(){
@@ -134,7 +186,8 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
       }
       const template = await this.getTemplate('zeroProducts-report')
       const html = template(data)
-      return this._generatePdf(html)
+      const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
+      return this._generatePdf(htmlWithEmbeddedImages);
     }
 
     async generateMostSoldProductsReport(){
@@ -147,7 +200,8 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
       }
       const template = await this.getTemplate('mostSoldProducts-report')
       const html = template(data)
-      return this._generatePdf(html)
+      const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
+      return this._generatePdf(htmlWithEmbeddedImages);
     }
 
     async generateLeastSoldProductsReport(){
@@ -160,7 +214,8 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
       }
       const template = await this.getTemplate('lessSoldProducts-report')
       const html = template(data)
-      return this._generatePdf(html)
+      const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
+      return this._generatePdf(htmlWithEmbeddedImages);
     }
     
 }

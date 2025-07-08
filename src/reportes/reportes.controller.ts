@@ -40,6 +40,7 @@ export class ReportesController {
     res.end(pdf)
   }
 
+  @Public()
   @Get('reporte-ventas/categorias')
   @AllowRoles([Rol.Admin])
   @ApiOperation({summary:'Genera un reporte de ventas de categorias en un periodo.'})

@@ -1,4 +1,4 @@
-import { Column, Entity,JoinColumn, OneToMany,OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity,JoinColumn, OneToMany,OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { PagoEntity } from "src/pagos/entities/pago.entity";
 import { PedidoEntity } from "src/pedidos/entities/pedido.entity";
 
@@ -14,7 +14,10 @@ export class FacturaEntity{
     @OneToMany(() => PagoEntity, (pagos) => pagos.factura)
     pagos: PagoEntity[]
 
-    @OneToOne(() => PedidoEntity,{nullable:false,onDelete:'SET NULL'})
+    @OneToOne(() => PedidoEntity, {nullable: false, onDelete: 'CASCADE'}) // o 'RESTRICT'
     @JoinColumn()
-    pedido:PedidoEntity
+    pedido: PedidoEntity;
+
+    @CreateDateColumn({type:'timestamp with time zone'})
+    fecha:Date
 }

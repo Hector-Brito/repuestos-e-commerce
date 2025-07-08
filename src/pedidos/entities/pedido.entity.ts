@@ -43,8 +43,7 @@ export class PedidoEntity {
     @OneToMany(() => EnvioEntity,(envio) => envio.pedido,{nullable:true,cascade:true,onDelete:'SET NULL'})
     envios:EnvioEntity[]
 
-    @OneToOne(() => FacturaEntity,{nullable:true,lazy:true,onDelete:'SET NULL'})
-    @JoinColumn()
+    @OneToOne(() => FacturaEntity, (factura) => factura.pedido, {nullable:true,eager:true,onDelete:'SET NULL'})
     factura:FacturaEntity
 
     getTotalPrice(){
