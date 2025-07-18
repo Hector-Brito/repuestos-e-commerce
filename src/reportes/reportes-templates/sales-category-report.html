@@ -297,38 +297,48 @@
                 <h2>AV. Principal de Naguagua</h2>
                 <h2>(0424) 571 50 37</h2>
                 <!-- <h1>REPORTE DE VENTAS DIARIAS</h1>
-                                        <h2>{{empresa}}</h2> -->
+                                <h2>{{empresa}}</h2> -->
             </div>
             <div class="logo">
-                <img src="./logo_blanco.png" alt="Logo {{empresa}}"  style="width: 100px; height: 90px;">
+               <img src="./logo_blanco.png" alt="Logo {{empresa}}" style="width: 100px; height: 90px;">
             </div>
         </div>
         
         <div class="date-container">
-            <strong>Fecha:</strong> <span id="current-date">{{fecha_actual}}</span>
+            <strong>Fecha:</strong> <span id="current-date">{{fecha_inicio}} - {{fecha_fin}}</span>
         </div>
         
         <div class="content">
-            <h2>Productos Más Vendidos</h2>
+            <h2>Ventas por Categoría</h2>
             
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Producto</th>
-                        <th>Código</th>
-                        <th>Cantidad Vendida</th>
+                        <th>#</th>
+                        <th>Categoría</th>
+                        <th>Ingreso</th>
+                        <th>Unidades Vendidas</th>
+                        <th>Porcentaje de participacion en ventas</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{#each productos}}
-                    <tr class="top-seller">
-                        <td>{{producto_id}}</td>
-                        <td>{{producto_nombre}}</td>
-                        <td>{{producto_codigo}}</td>
-                        <td>{{totalProductos}}</td>
+                    {{#each categorias}}
+                    <tr {{#if @first}}class="top-seller"{{/if}}>
+                        <td>{{categoria_id}}</td>
+                        <td>{{categoria_nombre}}</td>
+                        <td>{{totalGenerado}}</td>
+                        <td>{{totalProductoPorCategoria}}</td>
+                        <td>45%</td>
                     </tr>
                     {{/each}}
+                    <!-- TOTALES -->
+                    <tr class="top-seller">
+                        <td></td>
+                        <td>Total</td>
+                        <td>{{valorTotalCategorias}}</td>
+                        <td>{{unidades_total}}</td>
+                        <td>{{porcentaje_total}}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>

@@ -97,10 +97,9 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
     }
 }
 
-    async getTotalValues(dateParameters:DateParameters){
+    async getTotalValues(dateParameters:DateParameters,seller?:string){
       
-      const [ventasTotales,tasabcv] = await this.pedidosService.getTotalValuesSales(dateParameters)
-      console.log(ventasTotales)
+      const [ventasTotales,tasabcv] = await this.pedidosService.getTotalValuesSales(dateParameters,seller)
       const subTotales = {
         total_monto_dolares:0,
         total_monto_bs:0,
@@ -134,8 +133,8 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
       return data
     }
 
-    async generateSalesReport(dateParameters:DateParameters){
-        const data = await this.getTotalValues(dateParameters) 
+    async generateSalesReport(dateParameters:DateParameters, seller?:string){
+        const data = await this.getTotalValues(dateParameters,seller) 
         const template = await this.getTemplate('daily-report')
         const html = template(data)
         const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
@@ -144,33 +143,24 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
 
     async getCategoryValues(dateParameters:DateParameters){
       const totalProductoPorCategoria = await this.pedidosService.getTotalSalesFromCategory(dateParameters)
-      let data:{
-        categoria_id:string,
-        categoria_nombre:string,
-        productos:{
-          producto_nombre:string,
-          producto_cantidad: number
-        }[],
-        totalProductoPorCategoria:number
-
-      }[] = []
-      for( const key of Object.keys(totalProductoPorCategoria)){
-        data.push(totalProductoPorCategoria[key])
-      }
-      return data
+      let totalValorCategorias = 0
+      totalProductoPorCategoria.map((categoria)=>totalValorCategorias+=categoria.totalGenerado)
+      return {totalProductoPorCategoria,totalValorCategorias}
     }
 
     async generateCategoryReport(dateParameters:DateParameters){
-        const totalProductoPorCategoria = await this.getCategoryValues(dateParameters)
+        const {totalProductoPorCategoria,totalValorCategorias} = await this.getCategoryValues(dateParameters)
         const data = {
           año:new Date().getFullYear(),
           fecha_inicio:new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay).toLocaleDateString('es-ES'),
           fecha_fin:new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay).toLocaleDateString('es-ES'),
           empresa:'AUTOPARTES-MATURIN',
           total_categorias:totalProductoPorCategoria.length,
-          categorias:totalProductoPorCategoria
+          categorias:totalProductoPorCategoria,
+          valorTotalCategorias:totalValorCategorias
         }
-        const template = await this.getTemplate('category-report')
+        console.log(data)
+        const template = await this.getTemplate('sales-category-report')
         const html = template(data)
         const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
         return this._generatePdf(htmlWithEmbeddedImages);
@@ -191,7 +181,7 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
     }
 
     async generateMostSoldProductsReport(){
-      const mostSoldProducts = await this.pedidosService.getSoldProductsReport('DESC')
+      const mostSoldProducts = await this.pedidosService.getSoldProductsReport('DESC',10)
       const data = {
         empresa:'AUTOPARTES-MATURIN',
         fecha_actual:new Date().toLocaleDateString('es-ES'),
@@ -205,7 +195,7 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
     }
 
     async generateLeastSoldProductsReport(){
-      const lessSoldProducts = await this.pedidosService.getSoldProductsReport('ASC')
+      const lessSoldProducts = await this.pedidosService.getSoldProductsReport('ASC',10)
       const data = {
         empresa:'AUTOPARTES-MATURIN',
         fecha_actual:new Date().toLocaleDateString('es-ES'),
@@ -213,6 +203,20 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
         productos:lessSoldProducts
       }
       const template = await this.getTemplate('lessSoldProducts-report')
+      const html = template(data)
+      const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
+      return this._generatePdf(htmlWithEmbeddedImages);
+    }
+    async generateSalesHistoryProducts(){
+      const allProductsSold = await this.pedidosService.getSoldProductsReport('ASC')
+      const data = {
+        empresa:'AUTOPARTES-MATURIN',
+        fecha_actual:new Date().toLocaleDateString('es-ES'),
+        año:new Date().getFullYear(),
+        productos:allProductsSold
+      }
+      console.log(data)
+      const template = await this.getTemplate('salesXProducts-report')
       const html = template(data)
       const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
       return this._generatePdf(htmlWithEmbeddedImages);

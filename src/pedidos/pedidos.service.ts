@@ -55,16 +55,16 @@ export class PedidosService {
     return await this.pedidoRepository.save(pedido,{reload:true})
   }
 
-async getTotalValuesSales(dateParameters: DateParameters) {
+async getTotalValuesSales(dateParameters: DateParameters,seller?:string) {
     const from = new Date(dateParameters.fromYear, dateParameters.fromMonth, dateParameters.fromDay);
     const to = new Date(dateParameters.untilYear, dateParameters.untilMonth, dateParameters.untilDay);
 
     // Obtener tasa de cambio del día
     const response_json = await (await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=usd&format_date=default&rounded_price=true', {method: 'GET'})).json();
     const tasaBsDelDia = response_json.price;
-
+    console.log(seller)
     // Obtener las ventas
-    const ventas = await this.pedidoRepository
+    const query = await this.pedidoRepository
         .createQueryBuilder('pedido')
         .leftJoin('pedido.vendedor', 'vendedor')
         .leftJoin('pedido.perfil', 'comprador')
@@ -82,11 +82,15 @@ async getTotalValuesSales(dateParameters: DateParameters) {
         )`, 'pagos')
         .where('pedido.vendedor IS NOT NULL')
         //.where('pedido.factura IS NOT NULL')
+        //debe estar pagado!!!
         .andWhere('pedido.fecha >= :from', { from: from })
         .andWhere('pedido.fecha <= :to', { to: to })
-        .groupBy('vendedor.id, vendedor.username, comprador.id, factura.id')
-        .getRawMany();
-    console.log(ventas)
+        
+    if (seller) {
+      query.andWhere('vendedor.username = :username', { username: seller });
+    }
+    query.groupBy('vendedor.id, vendedor.username, comprador.id, factura.id')
+    const ventas = await query.getRawMany();
     // Procesar los resultados para agrupar por tipo de pago
     const processedResults = ventas.map(venta => {
         // Definir qué métodos de pago son en USD y cuáles en BS
@@ -250,52 +254,59 @@ async getTotalValuesSales(dateParameters: DateParameters) {
     return valoresTotales
   }
 
-  async getTotalSalesFromCategory(dateParameters:DateParameters){
-    const from = new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay)
-    const to = new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay)
-    const productosVendidos = await this.pedidoRepository
+  async getTotalSalesFromCategory(dateParameters: DateParameters) {
+  const from = new Date(dateParameters.fromYear, dateParameters.fromMonth, dateParameters.fromDay);
+  const to = new Date(dateParameters.untilYear, dateParameters.untilMonth, dateParameters.untilDay);
+
+  const categoriasVendidas = await this.pedidoRepository
     .createQueryBuilder('pedido')
-    .leftJoin('pedido.items','items')
-    .leftJoin('items.producto','producto')
-    .leftJoin('producto.categoria','categoria')
-    .select(['categoria.id','categoria.nombre','producto.nombre','producto.codigo'])
-    .addSelect('SUM(items.cantidad)','totalProductos')
-    .where('pedido.pagado = :pagado',{pagado:true})
-    .andWhere('pedido.fecha >= :from',{from:from})
-    .andWhere('pedido.fecha <= :to',{to:to})
+    .leftJoin('pedido.items', 'items')
+    .leftJoin('items.producto', 'producto')
+    .leftJoin('producto.categoria', 'categoria')
+    .select([
+      'categoria.id AS categoria_id',
+      'categoria.nombre AS categoria_nombre',
+      'SUM(items.cantidad) AS totalproductos'
+    ])
+    .addSelect(`
+      ROUND(
+        SUM(
+          items.cantidad *
+          (
+            CASE
+              WHEN producto.descuento BETWEEN 1 AND 100
+                THEN producto.precio - (producto.precio * producto.descuento / 100.0)
+              ELSE producto.precio
+            END
+            *
+            CASE
+              WHEN producto."aplicarDescuentoCategoria" = true AND categoria.descuento BETWEEN 1 AND 100
+                THEN (1 - categoria.descuento / 100.0)
+              ELSE 1
+            END
+          )
+        ), 2
+      )
+    `, 'totalgenerado')
+    .where('pedido.pagado = :pagado', { pagado: true })
+    .andWhere('pedido.fecha >= :from', { from: from })
+    .andWhere('pedido.fecha <= :to', { to: to })
     .groupBy('categoria.id')
-    .addGroupBy('producto.id')
-    .orderBy('categoria.id')
-    .addOrderBy('producto.nombre')
-    .getRawMany()
+    .orderBy('totalgenerado', 'DESC')
+    .getRawMany();
 
-    const totalProductosPorCategoria = {}
-    productosVendidos.forEach(item =>{
+  const resumenPorCategoria = categoriasVendidas.map(item => ({
+    categoria_id: item.categoria_id,
+    categoria_nombre: item.categoria_nombre,
+    totalProductoPorCategoria: parseInt(item.totalproductos, 10),
+    totalGenerado: parseFloat(item.totalgenerado)
+  }));
+  
+  return resumenPorCategoria;
+}
 
-      const categoria_id = item.categoria_id
-      const categoria_nombre = item.categoria_nombre
-      if(!totalProductosPorCategoria[categoria_id]){
-        totalProductosPorCategoria[categoria_nombre] = {
-          categoria_id,
-          categoria_nombre:categoria_nombre,
-          productos:[],
-          totalProductoPorCategoria:0
-        }
-
-      }
-      totalProductosPorCategoria[categoria_nombre].productos.push({
-        producto_nombre:item.producto_nombre,
-        producto_cantidad: parseInt(item.totalProductos,10),
-        producto_codigo:item.producto_codigo,
-      })
-
-      totalProductosPorCategoria[categoria_nombre].totalProductoPorCategoria += parseInt(item.totalProductos,10)
-    })
-    return totalProductosPorCategoria
-  }
-
-  async getSoldProductsReport(order:'ASC'|'DESC'){
-    const productosVendidos = await this.pedidoRepository
+  async getSoldProductsReport(order:'ASC'|'DESC',limit?:number){
+    const query = await this.pedidoRepository
     .createQueryBuilder('pedido')
     .leftJoin('pedido.items','items')
     .leftJoin('items.producto','producto')
@@ -304,7 +315,11 @@ async getTotalValuesSales(dateParameters: DateParameters) {
     .where('pedido.pagado = :pagado',{pagado:true})
     .groupBy('producto.id')
     .orderBy('SUM(items.cantidad)',order)
-    .getRawMany()
+    
+    if(limit){
+      query.limit(limit)
+    }
+    const productosVendidos = query.getRawMany()
     return productosVendidos
   }
 

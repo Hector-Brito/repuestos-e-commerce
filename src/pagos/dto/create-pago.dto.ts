@@ -1,4 +1,3 @@
-
 import { IsEnum, IsNotEmpty, IsNumber, IsNumberString, IsOptional, Length, Min} from "class-validator";
 import { FormaDePago } from "../enum/formaDePago.enum";
 import { Type } from "class-transformer";

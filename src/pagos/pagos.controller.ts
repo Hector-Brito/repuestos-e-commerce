@@ -7,13 +7,18 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AllowRoles } from 'src/auth/decorators/roles.decorator';
 import { Rol } from 'src/usuarios/enum/rol.enum';
 import { Public } from 'src/auth/decorators/isPublic.decorator';
+import { MetodosDePagoService } from './metodosDePago.service';
+import { CreateMetodoDePagoDto } from './dto/create-metodoDePago.dto';
 
 @Public()
 @ApiBearerAuth()
 @UseGuards(RolesGuard)
 @Controller('pagos')
 export class PagosController {
-  constructor(private readonly pagosService: PagosService) {}
+  constructor(
+    private readonly pagosService: PagosService,
+    private readonly metodosDePagoService:MetodosDePagoService,
+  ) {}
 
   @Post('pedido/:pedidoId')
   @AllowRoles([Rol.Admin,Rol.Seller,Rol.User])
@@ -59,5 +64,33 @@ export class PagosController {
   @ApiUnauthorizedResponse({description:'Unauthorized'})
   async remove(@Param('id',ParseIntPipe) id: number) {
     return await this.pagosService.remove(id)
+  }
+
+ 
+  @Post('metodo-de-pago/')
+  @AllowRoles([Rol.Admin])
+  @ApiOperation({summary:'Crea un metodo de pago (Admin).'})
+  @ApiUnauthorizedResponse({description:'Unauthorized'})
+  async createMetodoDePago(
+    @Body() createPagoDto: CreateMetodoDePagoDto
+  ) {
+    return await this.metodosDePagoService.create(createPagoDto)
+  }
+
+  @Get('metodo-de-pago/metodos-de-pago')
+  @AllowRoles([Rol.Admin])
+  @ApiOperation({summary:'Obtinene todos los metodo de pago (Admin).'})
+  @ApiUnauthorizedResponse({description:'Unauthorized'})
+  async findAllMetodoDePago() {
+    return await this.metodosDePagoService.findAll()
+  }
+
+
+  @Delete('metodo-de-pago/:id')
+  @AllowRoles([Rol.Admin])
+  @ApiOperation({summary:'Elimina un metodo de pago (Admin, Seller, User).'})
+  @ApiUnauthorizedResponse({description:'Unauthorized'})
+  async removeMetodoDepago(@Param('id',ParseIntPipe) id: number) {
+    return await this.metodosDePagoService.remove(id)
   }
 }

@@ -22,7 +22,8 @@ export class ReportesController {
     @Query('fromYear') fromYear?:number,
     @Query('untilDay') untilDay?:number,
     @Query('untilMonth') untilMonth?:number,
-    @Query('untilYear') untilYear?:number
+    @Query('untilYear') untilYear?:number,
+    @Query('seller') seller?:string,
   ){
     const now = new Date()
     now.setHours(0,0,0,0)
@@ -34,7 +35,7 @@ export class ReportesController {
       untilMonth:untilMonth ?? now.getMonth(),
       untilYear:untilYear ?? now.getFullYear() 
     }
-    const pdf = await this.reportesService.generateSalesReport(dateParameters)
+    const pdf = await this.reportesService.generateSalesReport(dateParameters,seller)
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', 'inline; filename=sales-report.pdf')
     res.end(pdf)
@@ -70,6 +71,7 @@ export class ReportesController {
     res.end(pdf)
   }
 
+  @Public()
   @Get('reporte-ventas/productos-con-existencia-cero')
   @AllowRoles([Rol.Admin])
   @ApiOperation({summary:'Genera un reporte de productos con existencia cero.'})
@@ -82,7 +84,7 @@ export class ReportesController {
     res.end(pdf)
   }
 
-  
+  @Public()
   @Get('reporte-ventas/productos-mas-vendidos')
   @AllowRoles([Rol.Admin])
   @ApiOperation({summary:'Genera un reporte de productos mas vendidos.'})
@@ -97,6 +99,7 @@ export class ReportesController {
 
 
 
+  @Public()
   @Get('reporte-ventas/productos-menos-vendidos')
   @AllowRoles([Rol.Admin])
   @ApiOperation({summary:'Genera un reporte de productos menos vendidos.'})
@@ -104,6 +107,19 @@ export class ReportesController {
     @Res() res:Response,
   ){
     const pdf = await this.reportesService.generateLeastSoldProductsReport()
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'inline; filename=sales-report.pdf')
+    res.end(pdf)
+  }
+
+  @Public()
+  @Get('reporte-ventas/historial-productos-vendidos')
+  @AllowRoles([Rol.Admin])
+  @ApiOperation({summary:'Genera un reporte del historial de todos los productos vendidos.'})
+  async getSalesHistoryProducts(
+    @Res() res:Response,
+  ){
+    const pdf = await this.reportesService.generateSalesHistoryProducts()
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', 'inline; filename=sales-report.pdf')
     res.end(pdf)

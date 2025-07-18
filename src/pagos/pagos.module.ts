@@ -4,10 +4,12 @@ import { PagosController } from './pagos.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PagoEntity } from './entities/pago.entity';
 import { PedidosModule } from 'src/pedidos/pedidos.module';
+import { MetodosDePagoService } from './metodosDePago.service';
+import { MetodoDePagoEntity } from './entities/metodosDePago.entity';
 
 @Module({
-  imports:[PedidosModule,TypeOrmModule.forFeature([PagoEntity])],
+  imports:[PedidosModule,TypeOrmModule.forFeature([PagoEntity, MetodoDePagoEntity])],
   controllers: [PagosController],
-  providers: [PagosService],
+  providers: [PagosService, MetodosDePagoService],
 })
 export class PagosModule {}
