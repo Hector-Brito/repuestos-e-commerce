@@ -9,6 +9,7 @@ import { Rol } from 'src/usuarios/enum/rol.enum';
 import { Public } from 'src/auth/decorators/isPublic.decorator';
 import { MetodosDePagoService } from './metodosDePago.service';
 import { CreateMetodoDePagoDto } from './dto/create-metodoDePago.dto';
+import { UpdateMetodoDePagoDto } from './dto/update-metodoDePago.dto';
 
 @Public()
 @ApiBearerAuth()
@@ -92,5 +93,16 @@ export class PagosController {
   @ApiUnauthorizedResponse({description:'Unauthorized'})
   async removeMetodoDepago(@Param('id',ParseIntPipe) id: number) {
     return await this.metodosDePagoService.remove(id)
+  }
+
+  @Patch('metodo-de-pago/:id')
+  @AllowRoles([Rol.Admin,Rol.Seller,Rol.User])
+  @ApiOperation({summary:'Actualiza un metodo de pago (Admin, Seller, User).'})
+  @ApiUnauthorizedResponse({description:'Unauthorized'})
+  updateMetodo(
+    @Param('id') id:number,
+    @Body() updateMetodoDePagoDto: UpdateMetodoDePagoDto
+  ) {
+    return this.metodosDePagoService.update(id,updateMetodoDePagoDto);
   }
 }

@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { MetodoDePagoEntity } from "./entities/metodosDePago.entity";
 import { CreateMetodoDePagoDto } from "./dto/create-metodoDePago.dto";
+import { UpdateMetodoDePagoDto } from "./dto/update-metodoDePago.dto";
 
 
 
@@ -40,5 +41,17 @@ export class MetodosDePagoService{
     async findAll(){
         return await this.metodosDePagoRepository.find({})
     }
+
+        /**
+         * Actualiza los datos de un metodo de pago
+         * @param pedidoId 
+         * @param updatePagoDto 
+         * @returns 
+         */
+        async update(id:number,updateMetodoDePagoDto:UpdateMetodoDePagoDto){
+            const metodoDePago = await this.metodosDePagoRepository.findOneByOrFail({id:id})
+            Object.assign(metodoDePago,updateMetodoDePagoDto)
+            return await this.metodosDePagoRepository.save(metodoDePago)    
+        }
     
 }
