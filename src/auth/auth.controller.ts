@@ -55,7 +55,8 @@ export class AuthController {
     @Req() request:Request,
     @Body() forgetPasswordDto:ForgetPasswordDto
   ){
-    let url = request.protocol +'://' + request.host +'/auth/' +'reset-password'
+    let host = process.env.NODE_ENV === 'develop' ? 'http://localhost:8080' : 'https://verdant-caramel-c7c95f.netlify.app'
+    let url = host + '/auth/' +'reset-password'
     const response = await this.authService.forgotPassword(forgetPasswordDto.email,url)
     
     return response
