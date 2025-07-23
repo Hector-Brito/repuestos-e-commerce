@@ -4,6 +4,7 @@ import { IsInDatabase } from "src/custom-validators/IsInDatabase.validator";
 import { EmpresaEnvioEntity } from "../entities/empresaEnvio.entity";
 import { PedidoEntity } from "src/pedidos/entities/pedido.entity";
 import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 
 
 export class CreateEnvioDto {
@@ -22,6 +23,7 @@ export class CreateEnvioDto {
     @IsNumber()
     @IsInDatabase(EmpresaEnvioEntity,'id')
     @IsOptional()
+    @Type(() => Number)
     empresaId:number|undefined
 
     @ApiProperty({
@@ -30,5 +32,6 @@ export class CreateEnvioDto {
     @IsNumber()
     @IsInDatabase(PedidoEntity,'id')
     @IsNotEmpty()
+    @Type(() => Number)
     pedidoId:number
 }

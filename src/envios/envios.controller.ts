@@ -1,14 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { EnviosService } from './envios.service';
 import { CreateEnvioDto } from './dto/create-envio.dto';
 import { UpdateEnvioDto } from './dto/update-envio.dto';
 import { CreateEmpresaEnvioDto } from './dto/create-empresaEnvio.dto';
 import { UpdateEmpresaEnvioDto } from './dto/update-empresaEnvio.dto';
-import { ApiBearerAuth,ApiOperation,ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth,ApiBody,ApiConsumes,ApiOperation,ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AllowRoles } from 'src/auth/decorators/roles.decorator';
 import { Rol } from 'src/usuarios/enum/rol.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Public } from 'src/auth/decorators/isPublic.decorator';
+import { MetodosDeEntrega } from './enum/metodosDeEntrega.enum';
 
+@Public()
 @ApiBearerAuth()
 @Controller('envios')
 export class EnviosController {
@@ -19,7 +23,42 @@ export class EnviosController {
   @AllowRoles([Rol.Admin,Rol.Seller,Rol.User])
   @ApiOperation({summary:'Crea un envio (Admin, Seller, User).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
-  create(@Body() createEnvioDto: CreateEnvioDto) {
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+      description: 'Crear un nuevo envio.',
+      type: 'multipart/form-data',
+      schema: {
+        type:'object',
+        properties: {
+          direccionEmpresa: { type: 'string', description: 'Direccion de la empresa' },
+          empresaId: { type: 'number', description: 'ID de la empresa', nullable: true },
+          pedidoId: { type: 'number', description: 'ID de la empresa', nullable: false },
+          metodoDeEntrega:{
+            type:'string',
+            description:'Metodo de entrega',
+            enum: Object.values(MetodosDeEntrega),
+            example: MetodosDeEntrega.EnvioNacional, 
+            nullable:true},
+          image: {
+            type: 'string',
+            format: 'binary',
+            description: 'Imagen de la guia',
+          },
+        },
+      },
+    })
+  create(
+    @Body() createEnvioDto: CreateEnvioDto,
+    @UploadedFile() image?: Express.Multer.File
+  ) {
+     let imageName: string | null = null;
+     console.log(image)
+    if (image) {
+      imageName = image.filename
+      createEnvioDto['imageName'] = imageName
+    }
+    
     return this.enviosService.create(createEnvioDto);
   }
 

@@ -22,7 +22,7 @@ export class EnviosService {
     return await this.empresaEnvioRepository.save(empresa)
   }
 
-  async create(createEnvioDto: CreateEnvioDto) {
+  async create(createEnvioDto: CreateEnvioDto & {imageName?:string}) {
     const {pedidoId,empresaId} = createEnvioDto
     const empresa = typeof empresaId === 'number' ? await this.findOneEmpresaEnvio(empresaId):undefined
     const pedido = await this.pedidosService.findOne(pedidoId)
@@ -30,7 +30,8 @@ export class EnviosService {
       {
         ...createEnvioDto,
         empresa:empresa ?? undefined,
-        pedido:pedido
+        pedido:pedido,
+        fotoGuia:createEnvioDto?.imageName
       }
     )
 

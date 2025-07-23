@@ -9,6 +9,9 @@ export class EnvioEntity {
     @PrimaryGeneratedColumn('increment')
     id:number
 
+    @Column({type:'text',nullable:true})
+    fotoGuia:string
+
     @Column({type:'varchar',length:200,nullable:true})
     direccionEmpresa:string
 
@@ -18,6 +21,9 @@ export class EnvioEntity {
     @ManyToOne(() => EmpresaEnvioEntity,(empresaEnvio) => empresaEnvio.envios,{nullable:true,eager:true,onDelete:'SET NULL'})
     @JoinColumn()
     empresa:EmpresaEnvioEntity
+
+    @Column({type:'varchar',length:200,nullable:true})
+    numeroDeGuia:string
 
     @ManyToOne(() => PedidoEntity,(pedido) => pedido.envios,{eager:true,onDelete:'CASCADE'})
     @JoinColumn()
