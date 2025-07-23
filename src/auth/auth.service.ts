@@ -4,7 +4,7 @@ import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import { hash, verify } from 'argon2';
 import { MailerService } from '@nestjs-modules/mailer';
 import { jwtConstants } from './constants';
-import { ResetPasswordDto } from './dto/forgetPassword.dto';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { EntityNotFoundError } from 'typeorm';
 import { UsuarioEntity } from 'src/usuarios/entities/usuario.entity';
 import { Rol } from 'src/usuarios/enum/rol.enum';

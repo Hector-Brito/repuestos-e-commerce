@@ -3,13 +3,14 @@ import { AuthService } from './auth.service';
 import { Public } from './decorators/isPublic.decorator';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
-import { ResetPasswordDto } from './dto/forgetPassword.dto';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Rol } from 'src/usuarios/enum/rol.enum';
 import { PerfilEntity } from 'src/usuarios/entities/perfil.entity';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { SignUpDto } from './dto/signUp.dto';
 import { SignInDto } from './dto/singIn.dto';
+import { ForgetPasswordDto } from './dto/forgetPassword.dto';
 
 
 @ApiBearerAuth()
@@ -52,10 +53,10 @@ export class AuthController {
   @ApiOperation({summary:'Recuperar contraseña.'})
   async forgotPassword(
     @Req() request:Request,
-    @Body() {email}:{email:string}
+    @Body() forgetPasswordDto:ForgetPasswordDto
   ){
     let url = request.protocol +'://' + request.host +'/auth/' +'reset-password'
-    const response = await this.authService.forgotPassword(email,url)
+    const response = await this.authService.forgotPassword(forgetPasswordDto.email,url)
     
     return response
   }
