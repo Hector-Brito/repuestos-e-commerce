@@ -9,6 +9,7 @@ import { ProductosModule } from 'src/productos/productos.module';
 import { UsuariosModule } from 'src/usuarios/usuarios.module';
 import { PedidoItemService } from './pedidoItem.service';
 import { IsNotDuplicatedNumberConstraint } from 'src/custom-constraints/is-not-duplicated-number.decorator';
+import { ProductosService } from 'src/productos/productos.service';
 
 
 @Module({

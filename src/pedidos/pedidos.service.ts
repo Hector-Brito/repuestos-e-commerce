@@ -12,6 +12,7 @@ import { Rol } from 'src/usuarios/enum/rol.enum';
 import { TipoDePedido } from './enum/tipoDePedido.enum';
 import { DateParameters } from 'src/reportes/types/dateParameter.type';
 import { FormaDePago } from 'src/pagos/enum/formaDePago.enum';
+import { ProductosService } from 'src/productos/productos.service';
 
 @Injectable()
 export class PedidosService {
@@ -20,6 +21,7 @@ export class PedidosService {
     @InjectRepository(PedidoEntity) private readonly pedidoRepository:Repository<PedidoEntity>,
     private readonly pedidoItemService:PedidoItemService,
     private readonly usuariosService:UsuariosService,
+    private readonly productosService:ProductosService,
   ){}
 
   async create(user:{sub:number,username:string,rol:Rol,profileId:number},createPedidoDto: CreatePedidoDto) {
@@ -321,6 +323,10 @@ async getTotalValuesSales(dateParameters: DateParameters,seller?:string) {
     }
     const productosVendidos = query.getRawMany()
     return productosVendidos
+  }
+
+  async getCurrentStock(){
+    return await this.productosService.findAll()
   }
 
   async findAll() {

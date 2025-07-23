@@ -4,6 +4,8 @@ import { FormaDePago } from "../enum/formaDePago.enum";
 import { FacturaEntity } from "src/facturas/entities/factura.entity";
 import { DecimalToTransformer } from "src/productos/transformers/string-to-decimal.transformer";
 import { Exclude } from "class-transformer";
+import { MetodoDePagoEntity } from "./metodosDePago.entity";
+
 
 @Entity({name:'pago'})
 export class PagoEntity{
@@ -20,6 +22,9 @@ export class PagoEntity{
 
     @Column({type:'enum',enum:FormaDePago,default:FormaDePago.PagoMovil})
     nombreFormaDePago:FormaDePago
+
+    @ManyToOne(() => MetodoDePagoEntity,(metodoDePago) => metodoDePago.pagos,{nullable:true,onDelete:'SET NULL'})
+    metodoDePago:MetodoDePagoEntity
 
     @Column({type:'decimal',nullable:false,transformer:new DecimalToTransformer(),precision:5,scale:2})
     monto:number

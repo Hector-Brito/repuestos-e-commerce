@@ -34,24 +34,32 @@ export class MetodosDePagoService{
         return await this.metodosDePagoRepository.remove(metodoDePago) 
     }
 
-     /**
+    /**
     * Obtiene todos los metodos de pago. 
     * @returns 
     */
     async findAll(){
-        return await this.metodosDePagoRepository.find({})
+        return await this.metodosDePagoRepository.find({relations:['pagos']})
+    }
+    
+    /**
+    * Obtiene un metodo de pago por ID
+    * @returns 
+    */
+    async findOne(id:number){
+        return await this.metodosDePagoRepository.findOneByOrFail({id:id})
     }
 
-        /**
-         * Actualiza los datos de un metodo de pago
-         * @param pedidoId 
-         * @param updatePagoDto 
-         * @returns 
-         */
-        async update(id:number,updateMetodoDePagoDto:UpdateMetodoDePagoDto){
-            const metodoDePago = await this.metodosDePagoRepository.findOneByOrFail({id:id})
-            Object.assign(metodoDePago,updateMetodoDePagoDto)
-            return await this.metodosDePagoRepository.save(metodoDePago)    
-        }
+    /**
+    * Actualiza los datos de un metodo de pago
+    * @param pedidoId 
+    * @param updatePagoDto 
+    * @returns 
+    */
+    async update(id:number,updateMetodoDePagoDto:UpdateMetodoDePagoDto){
+        const metodoDePago = await this.metodosDePagoRepository.findOneByOrFail({id:id})
+        Object.assign(metodoDePago,updateMetodoDePagoDto)
+        return await this.metodosDePagoRepository.save(metodoDePago)    
+    }
     
 }

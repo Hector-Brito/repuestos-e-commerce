@@ -124,5 +124,21 @@ export class ReportesController {
     res.setHeader('Content-Disposition', 'inline; filename=sales-report.pdf')
     res.end(pdf)
   }
+
+
+  
+  @Public()
+  @Get('reporte-ventas/inventario-actual')
+  @AllowRoles([Rol.Admin])
+  @ApiOperation({summary:'Genera un reporte del inventario actual.'})
+  async getCurrentInvetoryReport(
+    @Res() res:Response,
+  ){
+    const pdf = await this.reportesService.generateCurrentInventary()
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'inline; filename=sales-report.pdf')
+    res.end(pdf)
+  }
+
   //DOCUMENTAR TODO
 }

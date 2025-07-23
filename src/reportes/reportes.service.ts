@@ -215,8 +215,22 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
         año:new Date().getFullYear(),
         productos:allProductsSold
       }
-      console.log(data)
       const template = await this.getTemplate('salesXProducts-report')
+      const html = template(data)
+      const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
+      return this._generatePdf(htmlWithEmbeddedImages);
+    }
+
+    async generateCurrentInventary(){
+      const allProducts = await this.pedidosService.getCurrentStock()
+      const data = {
+        empresa:'AUTOPARTES-MATURIN',
+        fecha_actual:new Date().toLocaleDateString('es-ES'),
+        año:new Date().getFullYear(),
+        productos:allProducts
+      }
+      console.log(allProducts)
+      const template = await this.getTemplate('all-inventary')
       const html = template(data)
       const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
       return this._generatePdf(htmlWithEmbeddedImages);
