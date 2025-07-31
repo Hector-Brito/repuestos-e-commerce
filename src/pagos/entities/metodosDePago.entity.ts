@@ -7,7 +7,7 @@ export class MetodoDePagoEntity{
     @PrimaryGeneratedColumn('increment')
     id:number
 
-    @Column({type:'varchar',length:50,nullable:true,unique:false})
+    @Column({type:'varchar',length:50,nullable:false,unique:false})
     tipo:string
 
     @Column({type:'varchar',length:50,nullable:true,unique:false})
