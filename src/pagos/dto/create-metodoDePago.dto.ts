@@ -17,14 +17,12 @@ export class CreateMetodoDePagoDto{
     email:string
 
     @IsVePhoneNumber({message:'numeroTelefono debe cumplir el formato 04(12|16|26|14|24)-XXXXXXX'})
-    @UniqueInDatabase(MetodoDePagoEntity,'numeroTelefono')
     @IsOptional()
     numeroTelefono:string 
 
     @IsNumberString()
     @MinLength(7)
     @MaxLength(9)
-    @UniqueInDatabase(MetodoDePagoEntity,'cedula')
     @IsOptional()
     cedula:string
 
