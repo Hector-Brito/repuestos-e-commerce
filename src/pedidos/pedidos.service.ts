@@ -349,7 +349,7 @@ async getTotalValuesSales(dateParameters: DateParameters,seller?:string) {
   
 
   async findOne(id: number) {
-    const pedido = await this.pedidoRepository.findOneOrFail({where:{id:id},relations:{items:{producto:true}}})
+    const pedido = await this.pedidoRepository.findOneOrFail({where:{id:id},relations:{items:{producto:true},perfil:true}})
     pedido['precioTotal'] = pedido.getTotalPrice()
     return pedido
   }
