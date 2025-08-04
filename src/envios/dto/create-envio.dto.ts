@@ -13,6 +13,10 @@ export class CreateEnvioDto {
     @IsOptional()
     direccionEmpresa:string
 
+    @IsString()
+    @IsOptional()
+    numeroDeGuia:string
+
     @IsEnum(MetodosDeEntrega)
     @IsNotEmpty()
     metodoDeEntrega:MetodosDeEntrega
