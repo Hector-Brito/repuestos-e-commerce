@@ -32,6 +32,7 @@ export class EnviosController {
         type:'object',
         properties: {
           direccionEmpresa: { type: 'string', description: 'Direccion de la empresa' },
+          numeroDeGuia: { type: 'string', description: 'Numero de guia' },
           empresaId: { type: 'number', description: 'ID de la empresa', nullable: true },
           pedidoId: { type: 'number', description: 'ID de la empresa', nullable: false },
           metodoDeEntrega:{
