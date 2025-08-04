@@ -329,22 +329,26 @@ async getTotalValuesSales(dateParameters: DateParameters,seller?:string) {
     return await this.productosService.findAll()
   }
 
-  async findAll() {
-    const pedidos = await this.pedidoRepository.find(
-      {
-        relations:{
-          perfil:true,
-          items:{
-            producto:true
-          },
-          vendedor:true,
-          envios:true
-        }
-      }
-    )
-    pedidos.map((pedido) => pedido['precioTotal'] = pedido.getTotalPrice())
-    return pedidos
+async findAll(perfil_id?: number) {
+  const query = this.pedidoRepository.createQueryBuilder('pedido')
+    .leftJoinAndSelect('pedido.perfil', 'perfil')
+    .leftJoinAndSelect('pedido.items', 'items')
+    .leftJoinAndSelect('items.producto', 'producto')
+    .leftJoinAndSelect('pedido.vendedor', 'vendedor')
+    .leftJoinAndSelect('pedido.envios', 'envios');
+
+  if (perfil_id) {
+    // Assuming you want to filter pedidos by a user_id on the 'perfil' or 'vendedor' entity.
+    // You'll need to adjust this condition based on your specific database schema.
+    query.where('perfil.id = :perfil_id', { perfil_id });
   }
+
+  const pedidos = await query.getMany();
+  
+  pedidos.map((pedido) => (pedido['precioTotal'] = pedido.getTotalPrice()));
+  
+  return pedidos;
+}
 
   
 

@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, ParseArrayPipe, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, ParseArrayPipe, UseGuards, Req, Query } from '@nestjs/common';
 import { PedidosService } from './pedidos.service';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { CreatePedidoItemDto } from './dto/create-pedido-item.dto';
-import { ApiBody, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiQuery, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AllowRoles } from 'src/auth/decorators/roles.decorator';
@@ -33,8 +33,9 @@ export class PedidosController {
   @AllowRoles([Rol.Admin,Rol.Seller])
   @ApiOperation({summary:'Obtiene todos los pedidos (Admin, Seller).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
-  async findAll() {
-    return await this.pedidosService.findAll();
+  @ApiQuery({ name: 'perfil_id', required: false, type: Number })
+  async findAll(@Query('perfil_id') perfil_id?:number) {
+    return await this.pedidosService.findAll(perfil_id);
   }
 
   @Get(':id')
