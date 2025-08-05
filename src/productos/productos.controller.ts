@@ -73,6 +73,7 @@ export class ProductosController {
     return this.productosService.findOne(+id);
   }
 
+  @Public()
   @Patch(':id')
   @UseGuards(RolesGuard)
   @UseInterceptors(FileInterceptor('image'))
@@ -89,7 +90,7 @@ export class ProductosController {
         disponible: { type: 'boolean', description: 'Disponibilidad del producto', default: false },
         descuento: { type: 'number', format: 'float', description: 'Descuento del producto', minimum: 0, maximum: 100, nullable: true },
         precio: { type: 'number', format: 'float', description: 'Precio del producto', minimum: 0 ,nullable:true},
-        aplicarDescuentoCategoria: { type: 'boolean', description: 'Aplicar descuento de categoría', default: false, nullable: true },
+        aplicarDescuentoCategoria: { type:'boolean', description: 'Aplicar descuento de categoría', default: false, nullable: true },
         stock: { type: 'number', description: 'Stock del producto', nullable: true },
         categoriaId: { type: 'number', description: 'ID de la categoría', nullable: true },
         image: {
