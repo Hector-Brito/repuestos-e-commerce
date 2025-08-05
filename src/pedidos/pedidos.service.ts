@@ -335,8 +335,8 @@ async findAll(perfil_id?: number) {
     .leftJoinAndSelect('pedido.items', 'items')
     .leftJoinAndSelect('items.producto', 'producto')
     .leftJoinAndSelect('pedido.vendedor', 'vendedor')
-    .leftJoinAndSelect('pedido.envios', 'envios');
-
+    .leftJoinAndSelect('pedido.envios', 'envios')
+    .leftJoinAndSelect('pedido.factura','factura');
   if (perfil_id) {
     // Assuming you want to filter pedidos by a user_id on the 'perfil' or 'vendedor' entity.
     // You'll need to adjust this condition based on your specific database schema.
