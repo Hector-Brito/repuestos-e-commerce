@@ -20,6 +20,30 @@ export class ProductosController {
   @UseGuards(RolesGuard)
   @UseInterceptors(FileInterceptor('image'))
   @AllowRoles([Rol.Admin])
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Crear un nuevo producto.',
+    type: 'multipart/form-data',
+    schema: {
+      type:'object',
+      properties: {
+        nombre: { type: 'string', description: 'Nombre del producto' },
+        descripcion: { type: 'string', description: 'Descripción del producto', nullable: true },
+        disponible: { type: 'boolean', description: 'Disponibilidad del producto', default: false },
+        descuento: { type: 'number', format: 'float', description: 'Descuento del producto', minimum: 0, maximum: 100, nullable: true },
+        precio: { type: 'number', format: 'float', description: 'Precio del producto', minimum: 0 },
+        aplicarDescuentoCategoria: { type: 'boolean', description: 'Aplicar descuento de categoría', default: false, nullable: false},
+        stock: { type: 'number', description: 'Stock del producto', nullable: true },
+        categoriaId: { type: 'number', description: 'ID de la categoría', nullable: true },
+        image: {
+          type: 'string',
+          format: 'binary',
+          description: 'Imagen del producto',
+        },
+      },
+      required: ['nombre', 'precio'], 
+    },
+  })
   @ApiOperation({summary:'Crea un producto (Admin).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
   async create(
@@ -49,11 +73,33 @@ export class ProductosController {
     return this.productosService.findOne(+id);
   }
 
-  @Public()
   @Patch(':id')
   @UseGuards(RolesGuard)
   @UseInterceptors(FileInterceptor('image'))
   @AllowRoles([Rol.Admin])
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Actualizar producto con imagen',
+    type: 'multipart/form-data',
+    schema: {
+      type:'object',
+      properties: {
+        nombre: { type: 'string', description: 'Nombre del producto',nullable:true},
+        descripcion: { type: 'string', description: 'Descripción del producto', nullable: true },
+        disponible: { type: 'boolean', description: 'Disponibilidad del producto', default: false },
+        descuento: { type: 'number', format: 'float', description: 'Descuento del producto', minimum: 0, maximum: 100, nullable: true },
+        precio: { type: 'number', format: 'float', description: 'Precio del producto', minimum: 0 ,nullable:true},
+        aplicarDescuentoCategoria: { type: 'boolean', description: 'Aplicar descuento de categoría', default: false, nullable: true },
+        stock: { type: 'number', description: 'Stock del producto', nullable: true },
+        categoriaId: { type: 'number', description: 'ID de la categoría', nullable: true },
+        image: {
+          type: 'string',
+          format: 'binary',
+          description: 'Imagen del producto',
+        },
+      }, 
+    },
+  })
   @ApiOperation({summary:'Actualiza un producto (Admin).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
   update(
