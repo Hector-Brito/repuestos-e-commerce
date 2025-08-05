@@ -52,19 +52,18 @@ export class ProductoEntity {
  
     aplicarPrecioConDescuento(){
         if (this.precio >= 0){
-
-            let precioConDescuento = this.descuento > 0 && this.descuento < 101 ? this.precio - ((this.descuento * this.precio)/100) : this.precio
-
-            if (this.aplicarDescuentoCategoria){
-                precioConDescuento = this.categoria && this.categoria.descuento > 0 && this.categoria.descuento < 101  ? precioConDescuento - ((this.categoria.descuento * precioConDescuento)/100):precioConDescuento
-            
+            if (this.categoria && this.categoria.descuento > 0 && this.categoria.descuento < 101 && this.aplicarDescuentoCategoria){
+                let precioConDescuento = this.precio - ((this.categoria.descuento * this.precio)/100)
+                return precioConDescuento
             }
-
-            return precioConDescuento;
-
+            if (this.descuento > 0 && this.descuento < 101){
+                let precioConDescuento = this.precio - ((this.descuento * this.precio)/100);
+                return precioConDescuento
+            }
+            else{
+                return this.precio
+            }
         }
         return 0
-        
-        
     }
 }
