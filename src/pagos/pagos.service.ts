@@ -47,7 +47,9 @@ export class PagosService{
      * @returns 
      */
     async findAll(){
-        return await this.pagosRepository.find({})
+        return await this.pagosRepository.find({
+            select:{nombreFormaDePago:true, monto:true, tasaBsDelDia:true, numeroReferencia:true, fecha:true,pedido:{id:true}},
+            relations:{pedido:true}})
     }
 
     /**

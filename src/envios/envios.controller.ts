@@ -54,7 +54,6 @@ export class EnviosController {
     @UploadedFile() image?: Express.Multer.File
   ) {
      let imageName: string | null = null;
-     console.log(image)
     if (image) {
       imageName = image.filename
       createEnvioDto['imageName'] = imageName
@@ -87,7 +86,38 @@ export class EnviosController {
   @AllowRoles([Rol.Admin,Rol.Seller])
   @ApiOperation({summary:'Actualiza un envio (Admin, Seller).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
-  update(@Param('id',ParseIntPipe) id: number, @Body() updateEnvioDto: UpdateEnvioDto) {
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+      description: 'Crear un nuevo envio.',
+      type: 'multipart/form-data',
+      schema: {
+        type:'object',
+        properties: {
+          direccionEmpresa: { type: 'string', description: 'Direccion de la empresa' },
+          numeroDeGuia: { type: 'string', description: 'Numero de guia' },
+          empresaId: { type: 'number', description: 'ID de la empresa', nullable: true },
+          pedidoId: { type: 'number', description: 'ID de la empresa', nullable: false },
+          metodoDeEntrega:{
+            type:'string',
+            description:'Metodo de entrega',
+            enum: Object.values(MetodosDeEntrega),
+            example: MetodosDeEntrega.EnvioNacional, 
+            nullable:true},
+          image: {
+            type: 'string',
+            format: 'binary',
+            description: 'Imagen de la guia',
+          },
+        },
+      },
+    })
+  update(@Param('id',ParseIntPipe) id: number, @Body() updateEnvioDto: UpdateEnvioDto, @UploadedFile() image?: Express.Multer.File) {
+    let imageName: string | null = null;
+    if (image) {
+      imageName = image.filename
+      updateEnvioDto['imageName'] = imageName
+    }
     return this.enviosService.update(+id, updateEnvioDto);
   }
 

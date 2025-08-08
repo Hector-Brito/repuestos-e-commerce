@@ -54,11 +54,14 @@ export class EnviosService {
     return await this.empresaEnvioRepository.findOneByOrFail({id:empresaId})
   }
 
-  async update(id: number, updateEnvioDto: UpdateEnvioDto) {
+  async update(id: number, updateEnvioDto: UpdateEnvioDto & {imageName?:string}) {
     const {empresaId} = updateEnvioDto
     const envio = await this.findOne(id)
     Object.assign(envio,updateEnvioDto)
     const empresa = typeof empresaId === 'number' ? await this.findOneEmpresaEnvio(empresaId) : undefined
+    if (updateEnvioDto?.imageName){
+      envio.fotoGuia = updateEnvioDto?.imageName
+    }
     envio.empresa = empresa ?? envio.empresa
     return await this.enviosRepository.save(envio)
 

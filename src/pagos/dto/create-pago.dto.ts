@@ -17,7 +17,6 @@ export class CreatePagoDto{
     monto:number
 
     @IsNumberString()
-    @Length(6)
     @IsOptional()
     numeroReferencia:string
 
