@@ -15,6 +15,22 @@ export class CreateEnvioDto {
 
     @IsString()
     @IsOptional()
+    destinatarioNombre:string
+
+    @IsString()
+    @IsOptional()
+    destinatarioApellido:string
+
+    @IsString()
+    @IsOptional()
+    destinatarioCedula:string
+
+    @IsString()
+    @IsOptional()
+    destinatarioTelefono:string
+
+    @IsString()
+    @IsOptional()
     numeroDeGuia:string
 
     @IsEnum(MetodosDeEntrega)

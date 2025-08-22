@@ -29,4 +29,16 @@ export class EnvioEntity {
     @JoinColumn()
     pedido:PedidoEntity
 
+    //
+    @Column({type:'varchar',length:200,nullable:true})
+    destinatarioNombre:string
+
+    @Column({type:'varchar',length:200,nullable:true})
+    destinatarioApellido:string
+
+    @Column({type:'varchar',length:200,nullable:true})
+    destinatarioCedula:string
+
+    @Column({type:'varchar',length:200,nullable:true})
+    destinatarioTelefono:string
 }
