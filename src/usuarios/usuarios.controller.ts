@@ -44,6 +44,7 @@ export class UsuariosController {
     return await this.usuariosService.findOne(+id);
   }
 
+  @Public()
   @Patch(':id')
   @AllowRoles([Rol.Admin])
   @ApiOperation({summary:'Actualiza un usuario de rol vendedor (Admin).'})

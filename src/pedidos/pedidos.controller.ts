@@ -38,6 +38,7 @@ export class PedidosController {
     return await this.pedidosService.findAll(perfil_id);
   }
 
+  @Public()
   @Get(':id')
   @AllowRoles([Rol.Admin,Rol.Seller])
   @ApiOperation({summary:'Busca un pedido cualquiera por ID (Admin, Seller).'})
@@ -93,6 +94,7 @@ export class PedidosController {
     return await this.pedidosService.remove(+id);
   }
 
+  @Public()
   @Post(':pedidoId/items')
   @AllowRoles([Rol.Admin,Rol.Seller,Rol.User])
   @ApiBody({type:[CreatePedidoItemDto]})
