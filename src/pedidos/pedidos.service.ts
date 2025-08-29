@@ -62,9 +62,9 @@ async getTotalValuesSales(dateParameters: DateParameters,seller?:string) {
     const to = new Date(dateParameters.untilYear, dateParameters.untilMonth, dateParameters.untilDay);
 
     // Obtener tasa de cambio del día
-    const response_json = await (await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=usd&format_date=default&rounded_price=true', {method: 'GET'})).json();
-    const tasaBsDelDia = response_json.price;
-    console.log(seller)
+    const response_json = await (await fetch('https://ve.dolarapi.com/v1/dolares/oficial', {method: 'GET'})).json();
+    const tasaBsDelDia = response_json.promedio;
+    console.log(tasaBsDelDia)
     // Obtener las ventas
     const query = await this.pedidoRepository
         .createQueryBuilder('pedido')
