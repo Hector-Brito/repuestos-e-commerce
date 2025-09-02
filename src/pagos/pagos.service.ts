@@ -34,8 +34,8 @@ export class PagosService{
             }
         )
         //Obtener la tasa del bcv
-        const response_json = await (await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=usd&format_date=default&rounded_price=true',{method:'GET'})).json()
-        const tasaBsDelDia = response_json.price
+        const response_json = await (await fetch('https://ve.dolarapi.com/v1/dolares/oficial',{method:'GET'})).json()
+        const tasaBsDelDia = response_json.promedio
         pago.pedido = pedido
         pago.tasaBsDelDia = tasaBsDelDia
         pago.metodoDePago = metodoDePago
