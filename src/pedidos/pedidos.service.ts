@@ -108,10 +108,12 @@ async getTotalValuesSales(dateParameters: DateParameters,seller?:string) {
             'EFECTIVOBS': 0
         };
 
+
         // Sumar los montos por cada tipo de pago
+        // **CAMBIO:** Se añade una verificación para evitar el error si nombreFormaDePago es null o undefined
         venta.pagos.forEach(pago => {
-            const tipoPago = pago.nombreFormaDePago.toUpperCase();
-            if (paymentTypes.hasOwnProperty(tipoPago)) {
+            const tipoPago = pago.nombreFormaDePago ? pago.nombreFormaDePago.toUpperCase() : null;
+              if (tipoPago && paymentTypes.hasOwnProperty(tipoPago)) {
                 paymentTypes[tipoPago] += parseFloat(pago.monto);
             }
         });
