@@ -11,7 +11,7 @@ export function IsVePhoneNumber(validationOptions?:ValidationOptions){
             options:validationOptions,
             validator:{
                 validate(value:any, args:ValidationArguments){
-                    const validatorRegExp = new RegExp('^04(12|24|14|16|26)-[0-9]{7}$')
+                    const validatorRegExp = new RegExp('^04(12|24|14|16|26|22)-[0-9]{7}$')
                     const valid = RegExp(validatorRegExp).test(value)
                     return typeof value === 'string' && valid
                 }
