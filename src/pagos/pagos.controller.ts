@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { PagosService } from './pagos.service';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
-import { ApiBearerAuth, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { AllowRoles } from 'src/auth/decorators/roles.decorator';
 import { Rol } from 'src/usuarios/enum/rol.enum';
@@ -10,6 +10,7 @@ import { Public } from 'src/auth/decorators/isPublic.decorator';
 import { MetodosDePagoService } from './metodosDePago.service';
 import { CreateMetodoDePagoDto } from './dto/create-metodoDePago.dto';
 import { UpdateMetodoDePagoDto } from './dto/update-metodoDePago.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Public()
 @ApiBearerAuth()
@@ -22,14 +23,31 @@ export class PagosController {
   ) {}
 
   @Post('pedido/:pedidoId')
-  @AllowRoles([Rol.Admin,Rol.Seller,Rol.User])
-  @ApiOperation({summary:'Crea un pago de un pedido (Admin, Seller, User).'})
-  @ApiUnauthorizedResponse({description:'Unauthorized'})
+  @AllowRoles([Rol.Admin, Rol.Seller, Rol.User])
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        // ... otras propiedades del DTO de pago
+        numeroReferencia: { type: 'string' },
+        monto: { type: 'number', format: 'float' },
+        nombreFormaDePago: { type: 'string', enum: ['PAGOMOVIL', 'ZELLE', 'TRANSFERENCIA', 'EFECTIVO','EFECTIVOBS'] },
+        metodoDePagoId: { type: 'number', nullable: true },
+        image: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  @ApiOperation({ summary: 'Crea un pago de un pedido (Admin, Seller, User).' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   create(
-    @Param('pedidoId') pedidoId:number,
-    @Body() createPagoDto: CreatePagoDto
+    @Param('pedidoId') pedidoId: number,
+    @Body() createPagoDto: CreatePagoDto,
+    @UploadedFile() image?: Express.Multer.File,
   ) {
-    return this.pagosService.create(pedidoId,createPagoDto);
+    const imageName: string | undefined = image ? image.filename : undefined;
+    return this.pagosService.create(pedidoId, { ...createPagoDto, imageName });
   }
 
   @Get()
@@ -49,15 +67,33 @@ export class PagosController {
   }
 
   @Patch(':id')
-  @AllowRoles([Rol.Admin,Rol.Seller,Rol.User])
-  @ApiOperation({summary:'Actualiza un pago (Admin, Seller, User).'})
-  @ApiUnauthorizedResponse({description:'Unauthorized'})
+  @AllowRoles([Rol.Admin, Rol.Seller, Rol.User])
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        // ... propiedades del DTO de actualización
+        numeroReferencia: { type: 'string', nullable: true },
+        monto: { type: 'number', format: 'float', nullable: true },
+        nombreFormaDePago: { type: 'string', enum: ['PAGOMOVIL', 'ZELLE', 'TRANSFERENCIA', 'EFECTIVO','EFECTIVOBS'], nullable: true },
+        metodoDePagoId: { type: 'number', nullable: true },
+        image: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  @ApiOperation({ summary: 'Actualiza un pago (Admin, Seller, User).' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   update(
-    @Param('id') id:number,
-    @Body() updatePagoDto: UpdatePagoDto
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePagoDto: UpdatePagoDto,
+    @UploadedFile() image?: Express.Multer.File,
   ) {
-    return this.pagosService.update(id,updatePagoDto);
+    const imageName: string | undefined = image ? image.filename : undefined;
+    return this.pagosService.update(id, { ...updatePagoDto, imageName });
   }
+
 
   @Delete(':id')
   @AllowRoles([Rol.Admin,Rol.Seller,Rol.User])

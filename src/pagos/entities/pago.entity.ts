@@ -13,6 +13,9 @@ export class PagoEntity{
     @PrimaryGeneratedColumn('increment')
     id:number
 
+    @Column({type:'text',nullable:true})
+    image:string
+
     @ManyToOne(() => PedidoEntity,(pedido) => pedido.pagos,{nullable:true})
     pedido:PedidoEntity
 

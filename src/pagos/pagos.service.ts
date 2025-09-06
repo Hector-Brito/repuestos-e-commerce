@@ -23,25 +23,25 @@ export class PagosService{
      * @param createPagoDto 
      * @returns 
      */
-    async create(pedidoId:number,createPagoDto:CreatePagoDto){
-        const pedido = await this.pedidosService.findOne(pedidoId)
-        const metodoDePago = await this.metodoDePagoService.findOne(createPagoDto.metodoDePagoId)
-        const pago = this.pagosRepository.create(
-            {
-                numeroReferencia:createPagoDto.numeroReferencia,
-                monto:createPagoDto.monto,
-                nombreFormaDePago:createPagoDto.nombreFormaDePago
-            }
-        )
-        //Obtener la tasa del bcv
-        const response_json = await (await fetch('https://ve.dolarapi.com/v1/dolares/oficial',{method:'GET'})).json()
-        const tasaBsDelDia = response_json.promedio
-        pago.pedido = pedido
-        pago.tasaBsDelDia = tasaBsDelDia
-        pago.metodoDePago = metodoDePago
-        return await this.pagosRepository.save(pago)
-    }
+    async create(pedidoId: number, createPagoDto: CreatePagoDto & { imageName?: string }) {
+        const pedido = await this.pedidosService.findOne(pedidoId);
+        const metodoDePago = await this.metodoDePagoService.findOne(createPagoDto.metodoDePagoId);
+        
+        const pago = this.pagosRepository.create({
+            numeroReferencia: createPagoDto.numeroReferencia,
+            monto: createPagoDto.monto,
+            nombreFormaDePago: createPagoDto.nombreFormaDePago,
+            image: createPagoDto.imageName, // Asigna el nombre de la imagen al campo
+        });
 
+        // Obtener la tasa del bcv
+        const response_json = await (await fetch('https://ve.dolarapi.com/v1/dolares/oficial', { method: 'GET' })).json();
+        const tasaBsDelDia = response_json.promedio;
+        pago.pedido = pedido;
+        pago.tasaBsDelDia = tasaBsDelDia;
+        pago.metodoDePago = metodoDePago;
+        return await this.pagosRepository.save(pago);
+    }
     /**
      * Obtiene todos los pagos
      * @returns 
@@ -68,14 +68,17 @@ export class PagosService{
      * @param updatePagoDto 
      * @returns 
      */
-    async update(id:number,updatePagoDto:UpdatePagoDto){
-        const pago = await this.pagosRepository.findOneByOrFail({id:id})
-        Object.assign(pago,updatePagoDto)
-        if (updatePagoDto.metodoDePagoId){
-            const metodoDePago = await this.metodoDePagoService.findOne(updatePagoDto.metodoDePagoId)
-            pago.metodoDePago = metodoDePago
+    async update(id: number, updatePagoDto: UpdatePagoDto & { imageName?: string }) {
+        const pago = await this.pagosRepository.findOneByOrFail({ id: id });
+        Object.assign(pago, updatePagoDto);
+        if (updatePagoDto.metodoDePagoId) {
+            const metodoDePago = await this.metodoDePagoService.findOne(updatePagoDto.metodoDePagoId);
+            pago.metodoDePago = metodoDePago;
         }
-        return await this.pagosRepository.save(pago)    
+        if (updatePagoDto.imageName) {
+            pago.image = updatePagoDto.imageName; // Asigna el nuevo nombre de la imagen
+        }
+        return await this.pagosRepository.save(pago);
     }
 
     /**
