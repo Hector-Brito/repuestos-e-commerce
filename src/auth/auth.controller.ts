@@ -55,7 +55,7 @@ export class AuthController {
     @Req() request:Request,
     @Body() forgetPasswordDto:ForgetPasswordDto
   ){
-    let host = process.env.NODE_ENV === 'develop' ? 'http://localhost:8080' : 'https://repuestos-accesorios.netlify.app/'
+    let host = process.env.NODE_ENV === 'develop' ? 'http://localhost:8080' : 'https://repuestos-accesorios.netlify.app'
     let url = host + '/auth/' +'reset-password'
     const response = await this.authService.forgotPassword(forgetPasswordDto.email,url)
     
