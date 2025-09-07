@@ -46,7 +46,7 @@ export class UsuariosController {
 
   @Public()
   @Patch(':id')
-  @AllowRoles([Rol.Admin])
+  @AllowRoles([Rol.Admin, Rol.User, Rol.Seller])
   @ApiOperation({summary:'Actualiza un usuario de rol vendedor (Admin).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
   async update(@Param('id',ParseIntPipe) id: number, @Body() updateUsuarioDto: UpdateUsuarioDto) {
