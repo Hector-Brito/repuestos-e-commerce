@@ -29,7 +29,7 @@ export class PagoEntity{
     @ManyToOne(() => MetodoDePagoEntity,(metodoDePago) => metodoDePago.pagos,{nullable:true,onDelete:'SET NULL'})
     metodoDePago:MetodoDePagoEntity
 
-    @Column({type:'decimal',nullable:false,transformer:new DecimalToTransformer(),precision:5,scale:2})
+    @Column({type:'decimal',nullable:false,transformer:new DecimalToTransformer(),precision:39,scale:2})
     monto:number
 
     @Column({type:'decimal',nullable:true,transformer:new DecimalToTransformer(),precision:5,scale:2})
