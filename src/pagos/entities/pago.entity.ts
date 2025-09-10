@@ -40,4 +40,7 @@ export class PagoEntity{
 
     @CreateDateColumn({type:'timestamp with time zone'})
     fecha:Date
+
+    @Column({type:'boolean', default:false})
+    cancelado:boolean
 }

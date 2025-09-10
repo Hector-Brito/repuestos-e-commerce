@@ -26,6 +26,9 @@ export class PedidoEntity {
     @CreateDateColumn({type:'timestamp with time zone'})
     fecha:Date
 
+    @Column({type:'boolean', default:false})
+    cancelado:boolean
+
     @ManyToOne(()=> PerfilEntity,(perfil) => perfil.pedidos,{nullable:false,onDelete:'CASCADE'})
     @JoinColumn()
     perfil:PerfilEntity

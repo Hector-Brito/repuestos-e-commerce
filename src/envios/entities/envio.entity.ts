@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EmpresaEnvioEntity } from "./empresaEnvio.entity";
 import { PedidoEntity } from "src/pedidos/entities/pedido.entity";
 import { MetodosDeEntrega } from "../enum/metodosDeEntrega.enum";
@@ -28,6 +28,13 @@ export class EnvioEntity {
     @ManyToOne(() => PedidoEntity,(pedido) => pedido.envios,{eager:true,onDelete:'CASCADE'})
     @JoinColumn()
     pedido:PedidoEntity
+
+    
+    @CreateDateColumn({type:'timestamp with time zone', nullable:true})
+    fecha:Date
+
+    @Column({type:'boolean', default:false})
+    cancelado:boolean
 
     //
     @Column({type:'varchar',length:200,nullable:true})
