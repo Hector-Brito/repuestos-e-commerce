@@ -141,30 +141,38 @@ private async _generatePdf(htmlContent: string): Promise<Buffer> {
         return this._generatePdf(htmlWithEmbeddedImages);
     }
 
-    async getCategoryValues(dateParameters:DateParameters){
-      const totalProductoPorCategoria = await this.pedidosService.getTotalSalesFromCategory(dateParameters)
-      let totalValorCategorias = 0
-      totalProductoPorCategoria.map((categoria)=>totalValorCategorias+=categoria.totalGenerado)
-      return {totalProductoPorCategoria,totalValorCategorias}
-    }
+async getCategoryValues(dateParameters: DateParameters) {
+  const totalProductoPorCategoria = await this.pedidosService.getTotalSalesFromCategory(dateParameters);
+  let totalValorCategorias = 0;
+  totalProductoPorCategoria.map((categoria) => (totalValorCategorias += categoria.totalGenerado));
 
-    async generateCategoryReport(dateParameters:DateParameters){
-        const {totalProductoPorCategoria,totalValorCategorias} = await this.getCategoryValues(dateParameters)
-        const data = {
-          año:new Date().getFullYear(),
-          fecha_inicio:new Date(dateParameters.fromYear,dateParameters.fromMonth,dateParameters.fromDay).toLocaleDateString('es-ES'),
-          fecha_fin:new Date(dateParameters.untilYear,dateParameters.untilMonth,dateParameters.untilDay).toLocaleDateString('es-ES'),
-          empresa:'AUTOPARTES-MATURIN',
-          total_categorias:totalProductoPorCategoria.length,
-          categorias:totalProductoPorCategoria,
-          valorTotalCategorias:totalValorCategorias
-        }
-        console.log(data)
-        const template = await this.getTemplate('sales-category-report')
-        const html = template(data)
-        const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
-        return this._generatePdf(htmlWithEmbeddedImages);
-    }
+  const categoriasConPorcentaje = totalProductoPorCategoria.map((categoria) => ({
+    ...categoria,
+    porcentajeParticipacion:
+      totalValorCategorias > 0 ? parseFloat(((categoria.totalGenerado / totalValorCategorias) * 100).toFixed(2)) : 0,
+  }));
+
+  return { totalProductoPorCategoria: categoriasConPorcentaje, totalValorCategorias };
+}
+
+
+async generateCategoryReport(dateParameters: DateParameters) {
+  const { totalProductoPorCategoria, totalValorCategorias } = await this.getCategoryValues(dateParameters);
+  const data = {
+    año: new Date().getFullYear(),
+    fecha_inicio: new Date(dateParameters.fromYear, dateParameters.fromMonth, dateParameters.fromDay).toLocaleDateString('es-ES'),
+    fecha_fin: new Date(dateParameters.untilYear, dateParameters.untilMonth, dateParameters.untilDay).toLocaleDateString('es-ES'),
+    empresa: 'AUTOPARTES-MATURIN',
+    total_categorias: totalProductoPorCategoria.length,
+    categorias: totalProductoPorCategoria,
+    valorTotalCategorias: totalValorCategorias,
+  };
+  console.log(data);
+  const template = await this.getTemplate('sales-category-report');
+  const html = template(data);
+  const htmlWithEmbeddedImages = this.embedImagesInHtml(html);
+  return this._generatePdf(htmlWithEmbeddedImages);
+}
 
     async generateZeroExistenceProductsReport(){
       const zeroProducts = await this.productosService.getZeroExistenceProducts()
