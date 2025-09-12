@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 import { MetodosDeEntrega } from "../enum/metodosDeEntrega.enum";
 import { IsInDatabase } from "src/custom-validators/IsInDatabase.validator";
 import { EmpresaEnvioEntity } from "../entities/empresaEnvio.entity";
@@ -12,6 +12,10 @@ export class CreateEnvioDto {
     @IsString()
     @IsOptional()
     direccionEmpresa:string
+    
+    @IsBoolean()
+    @IsOptional()
+    cancelado:boolean
 
     @IsString()
     @IsOptional()

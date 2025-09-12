@@ -18,6 +18,9 @@ export class CreatePedidoDto {
     @IsOptional()
     pagado:boolean
 
+    @IsBoolean()
+    @IsOptional()
+    cancelado:boolean
     
     @IsEnum(EstadoDePedido)
     @IsOptional()
