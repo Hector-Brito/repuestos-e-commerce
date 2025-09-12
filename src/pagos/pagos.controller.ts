@@ -36,6 +36,7 @@ export class PagosController {
         nombreFormaDePago: { type: 'string', enum: ['PAGOMOVIL', 'ZELLE', 'TRANSFERENCIA', 'EFECTIVO','EFECTIVOBS'] },
         metodoDePagoId: { type: 'number', nullable: true },
         image: { type: 'string', format: 'binary' },
+        cancelado: { type: 'boolean', description: 'pago cancelado', default: false, nullable: false},
       },
     },
   })

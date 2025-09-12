@@ -31,6 +31,7 @@ export class EnviosController {
       schema: {
         type:'object',
         properties: {
+          cancelado: { type: 'boolean', description: 'pago cancelado', default: false, nullable: false},
           direccionEmpresa: { type: 'string', description: 'Direccion de la empresa' },
           numeroDeGuia: { type: 'string', description: 'Numero de guia' },
           empresaId: { type: 'number', description: 'ID de la empresa', nullable: true },
