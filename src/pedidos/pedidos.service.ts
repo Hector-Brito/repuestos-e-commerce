@@ -329,7 +329,7 @@ async getTotalValuesSales(dateParameters: DateParameters,seller?:string) {
   }
 
   async getCurrentStock(){
-    return await this.productosService.findAll()
+    return await this.productosService.findAllWithStock()
   }
 
 async findAll(perfil_id?: number) {

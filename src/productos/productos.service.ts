@@ -50,6 +50,17 @@ export class ProductosService {
     return productos
   }
 
+  async findAllWithStock(){
+    const productos = await this.productoRepository.find(
+      {
+        where:{stock:MoreThan(0)},
+        relations:{categoria:true}
+      }
+    )
+    productos.map((producto) => producto['precioConDescuento'] = producto.aplicarPrecioConDescuento())
+    return productos
+  }
+
   async findOne(id: number) {
     const producto = await this.productoRepository.findOneOrFail(
       {
