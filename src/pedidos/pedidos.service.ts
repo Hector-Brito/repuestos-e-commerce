@@ -358,6 +358,7 @@ async findAll(perfil_id?: number) {
 
   async findOne(id: number) {
     const pedido = await this.pedidoRepository.findOneOrFail({where:{id:id},relations:{items:{producto:true},perfil:true}})
+    pedido.items.map((item) => item.producto['precioConDescuento'] = item.producto.aplicarPrecioConDescuento())
     pedido['precioTotal'] = pedido.getTotalPrice()
     return pedido
   }
