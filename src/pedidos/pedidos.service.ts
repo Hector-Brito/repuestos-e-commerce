@@ -83,7 +83,8 @@ async getTotalValuesSales(dateParameters: DateParameters,seller?:string) {
             )
         )`, 'pagos')
         .where('pedido.vendedor IS NOT NULL')
-        //.where('pedido.factura IS NOT NULL')
+        .where('pedido.factura IS NOT NULL')
+        .where('pedido.pagado IS TRUE')
         //debe estar pagado!!!
         .andWhere('pedido.fecha >= :from', { from: from })
         .andWhere('pedido.fecha <= :to', { to: to })
