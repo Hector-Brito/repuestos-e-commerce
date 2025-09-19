@@ -79,7 +79,7 @@ export class UsuariosController {
 
   
   @Get('perfiles/:id')
-  @AllowRoles([Rol.Admin,Rol.Seller])
+  @AllowRoles([Rol.Admin,Rol.Seller, Rol.User])
   @ApiOperation({summary:'Busca un perfil por ID (Admin, Seller).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
   async findOnePerfil(@Param('id',ParseIntPipe) id:number){
@@ -89,7 +89,7 @@ export class UsuariosController {
 
   
   @Patch('perfiles/:id')
-  @AllowRoles([Rol.Admin,Rol.Seller])
+  @AllowRoles([Rol.Admin,Rol.Seller, Rol.User])
   @ApiBody({type:UpdatePerfilDto})
   @ApiOperation({summary:'Actualiza un perfil (Admin, Seller, User).'})
   @ApiUnauthorizedResponse({description:'Unauthorized'})
