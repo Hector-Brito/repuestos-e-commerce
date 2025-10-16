@@ -20,20 +20,20 @@ import { JwtRefreshStrategy } from './strategy/jwt-refresh.strategyt';
       global:true,
     }),
     ConfigModule.forRoot({ envFilePath: ['.env'], isGlobal: true }),
-    MailerModule.forRoot({
-      transport: {
-        host: process.env.HOST,
-        port: 587,  // Cambia de 465 a 587
-        secure: false,  // Cambia a false para STARTTLS
-        requireTLS: true,  // Fuerza TLS
-        auth: {
-          user: process.env.USER,
-          pass: process.env.PASS
+    MailerModule.forRoot(
+      {
+        transport:{
+          host:process.env.HOST,
+          port:465,
+          secure:true,
+          auth:{
+            user:process.env.USER,
+            pass:process.env.PASS
+          }
         },
-        connectionTimeout: 60000,  // Aumenta a 60s
-        socketTimeout: 60000       // Aumenta a 60s
+       
       }
-    })
+    )
   ],
   controllers: [AuthController],
   providers: [
