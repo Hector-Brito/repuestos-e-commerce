@@ -20,20 +20,17 @@ import { JwtRefreshStrategy } from './strategy/jwt-refresh.strategyt';
       global:true,
     }),
     ConfigModule.forRoot({ envFilePath: ['.env'], isGlobal: true }),
-    MailerModule.forRoot(
-      {
-        transport:{
-          host:process.env.HOST,
-          port:465,
-          secure:true,
-          auth:{
-            user:process.env.USER,
-            pass:process.env.PASS
-          }
-        },
-       
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.HOST,
+        port: 2525,  // Puerto de Mailtrap
+        secure: false,  // No SSL para Mailtrap
+        auth: {
+          user: process.env.USER,
+          pass: process.env.PASS
+        }
       }
-    )
+    })
   ],
   controllers: [AuthController],
   providers: [
