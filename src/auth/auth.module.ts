@@ -23,12 +23,15 @@ import { JwtRefreshStrategy } from './strategy/jwt-refresh.strategyt';
     MailerModule.forRoot({
       transport: {
         host: process.env.HOST,
-        port: 2525,  // Puerto de Mailtrap
-        secure: false,  // No SSL para Mailtrap
+        port: 587,  // Puerto 587 para STARTTLS
+        secure: false,  // Cambia a false para STARTTLS
+        requireTLS: true,  // Fuerza TLS
         auth: {
           user: process.env.USER,
           pass: process.env.PASS
-        }
+        },
+        connectionTimeout: 60000,  // 60 segundos para conectar
+        socketTimeout: 60000       // 60 segundos para enviar
       }
     })
   ],
